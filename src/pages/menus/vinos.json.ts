@@ -3,6 +3,8 @@ import type { APIRoute } from "astro"
 export const GET: APIRoute = ({ params, request }) => {
   const menu: Menu = {
     idx: 1,
+    name: "Vinos",
+    email: "hakgeumkim@gmail.com",
     version: 3,
     titles: [
       { uuid: "1", value: "Vinos" },
@@ -69,7 +71,6 @@ export const GET: APIRoute = ({ params, request }) => {
       },
     ],
     skinIdx: 1,
-    userIdx: 1,
   }
 
   return new Response(JSON.stringify(menu))

@@ -1,7 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro"
-import Vinos from "../skins/Vinos.svelte"
-import Default from "../skins/Default.astro"
+import Main from "../components/Main.svelte"
 
 const { id } = Astro.params
 const menu: Menu = await (
@@ -9,8 +8,6 @@ const menu: Menu = await (
 ).json()
 ---
 
-<Layout title="Welcome to Astro.">
-  {menu.skinIdx === 0 && <Default menu={menu} />}
-  {menu.skinIdx === 1 && <Vinos menu={menu} client:only="svelte" />}
-  <button id="change">change</button>
+<Layout title="menupi">
+  <Main menu={menu} client:only="svelte" />
 </Layout>

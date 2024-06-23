@@ -1,11 +1,10 @@
 <script lang="ts">
-  export let menu: Menu
+  import { isAdmin, menu } from "../store"
 
-  let isAdmin = true
-  const menuBackedUp = JSON.parse(JSON.stringify(menu))
+  const menuBackedUp = JSON.parse(JSON.stringify($menu))
 
   function addGroup() {
-    menu.groups.push({
+    $menu.groups.push({
       uuid: "new-group",
       value: "New Group",
       cols: [],
@@ -18,27 +17,27 @@
         },
       ],
     })
-    menu = menu
+    $menu = $menu
   }
 
   function moveGroup(group: Group, direction: "up" | "down") {
-    const index = menu.groups.indexOf(group)
+    const index = $menu.groups.indexOf(group)
     if (
       (direction === "up" && index === 0) ||
-      (direction === "down" && index === menu.groups.length - 1)
+      (direction === "down" && index === $menu.groups.length - 1)
     ) {
       return
     }
     const newIndex = direction === "up" ? index - 1 : index + 1
-    const temp = menu.groups[index]
-    menu.groups[index] = menu.groups[newIndex]
-    menu.groups[newIndex] = temp
-    menu = menu
+    const temp = $menu.groups[index]
+    $menu.groups[index] = $menu.groups[newIndex]
+    $menu.groups[newIndex] = temp
+    $menu = $menu
   }
 
   function removeGroup(group: Group) {
-    menu.groups = menu.groups.filter((g) => g !== group)
-    menu = menu
+    $menu.groups = $menu.groups.filter((g) => g !== group)
+    $menu = $menu
   }
 
   function addItem(group: Group) {
@@ -48,11 +47,11 @@
       descriptions: [{ value: "Description" }],
       prices: [{ value: "Price 1" }, { value: "Price 2" }],
     })
-    menu = menu
+    $menu = $menu
   }
 
   function moveItem(item: Item, direction: "up" | "down") {
-    const group = menu.groups.find((group) => group.items.includes(item))
+    const group = $menu.groups.find((group) => group.items.includes(item))
     const index = group.items.indexOf(item)
     if (
       (direction === "up" && index === 0) ||
@@ -64,24 +63,26 @@
     const temp = group.items[index]
     group.items[index] = group.items[newIndex]
     group.items[newIndex] = temp
-    menu = menu
+    $menu = $menu
   }
 
   function removeItem(item: Item) {
-    const group = menu.groups.find((group) => group.items.includes(item))
+    const group = $menu.groups.find((group) => group.items.includes(item))
     group.items = group.items.filter((i) => i !== item)
-    menu = menu
+    $menu = $menu
   }
 </script>
 
 <main>
   <div id="section--title">
-    <div id="title-value" contenteditable={isAdmin}>
-      {menu.titles?.at(0)?.value ?? ""}
+    <div id="title-value" contenteditable={$isAdmin}>
+      {$menu.titles?.at(0)?.value ?? ""}
     </div>
-    <div contenteditable={isAdmin}>{menu.titles.at(1)?.value ?? ""}</div>
-    <div id="header" contenteditable={isAdmin}>
-      {menu.headers?.at(0)?.value ?? ""}
+    <div class="center" contenteditable={$isAdmin}>
+      {$menu.titles.at(1)?.value ?? ""}
+    </div>
+    <div id="header" class="end" contenteditable={$isAdmin}>
+      {$menu.headers?.at(0)?.value ?? ""}
     </div>
   </div>
 
@@ -89,8 +90,8 @@
   <br />
   <br />
 
-  {#each menu.groups || [] as group, idx}
-    {#if isAdmin}
+  {#each $menu.groups || [] as group, idx}
+    {#if $isAdmin}
       <div class="group-editor">
         <button on:click={() => moveGroup(group, "up")}> Move Group Up </button>
         <button on:click={() => moveGroup(group, "down")}>
@@ -103,21 +104,21 @@
     {/if}
     <div class="group">
       <div class="grid">
-        <div class="group--value" contenteditable={isAdmin}>
+        <div class="group--value" contenteditable={$isAdmin}>
           {group.value}
         </div>
 
-        <div class="center" contenteditable={isAdmin}>
+        <div class="center" contenteditable={$isAdmin}>
           {group.cols?.at(0)?.value ?? ""}
         </div>
-        <div class="center" contenteditable={isAdmin}>
+        <div class="center" contenteditable={$isAdmin}>
           {group.cols?.at(1)?.value ?? ""}
         </div>
       </div>
       <hr />
       <ul>
         {#each group.items || [] as item}
-          {#if isAdmin}
+          {#if $isAdmin}
             <div class="item-editor">
               <button on:click={() => moveItem(item, "up")}>
                 Move Item Up
@@ -133,29 +134,29 @@
           <li>
             <div class="grid">
               <div>
-                <div class="item--value" contenteditable={isAdmin}>
+                <div class="item--value" contenteditable={$isAdmin}>
                   {item.value}
                 </div>
-                <div class="item--description" contenteditable={isAdmin}>
+                <div class="item--description" contenteditable={$isAdmin}>
                   {item.descriptions?.at(0)?.value ?? ""}
                 </div>
               </div>
-              <div class="center item--price" contenteditable={isAdmin}>
+              <div class="center item--price" contenteditable={$isAdmin}>
                 {item.prices?.at(0)?.value ?? ""}
               </div>
-              <div class="center item--price" contenteditable={isAdmin}>
+              <div class="center item--price" contenteditable={$isAdmin}>
                 {item.prices?.at(0)?.value ?? ""}
               </div>
             </div>
           </li>
         {/each}
       </ul>
-      {#if isAdmin}
+      {#if $isAdmin}
         <button on:click={() => addItem(group)}> Add New Item </button>
       {/if}
     </div>
   {/each}
-  {#if isAdmin}
+  {#if $isAdmin}
     <button on:click={addGroup}> Add New Group </button>
   {/if}
   <br />
@@ -163,13 +164,9 @@
   <br />
 
   <!-- Footer -->
-  {#each menu.footers || [] as footer}
-    <div class="group">
-      <div class="grid">
-        <div class="group--value" contenteditable={isAdmin}>
-          {footer.value}
-        </div>
-      </div>
+  {#each $menu.footers || [] as footer}
+    <div class="footer" contenteditable={$isAdmin}>
+      {footer.value}
     </div>
   {/each}
 </main>
@@ -189,8 +186,9 @@
     line-height: 1.6;
   }
   #section--title {
-    display: flex;
-    justify-content: space-between;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
     align-items: center;
   }
 
@@ -245,6 +243,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .end {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
   }
 
   .item--value {

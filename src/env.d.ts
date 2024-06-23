@@ -1,16 +1,16 @@
 /// <reference types="astro/client" />
 /// <reference types="astro/client" />
 
-type User = { idx: number; name: string; email: string }
-
 type Menu = {
   idx: number
+  name: string
+  email?: string
+  password?: string
   version: number
   titles: Title[]
   headers: Header[]
   footers: Footer[]
   groups: Group[]
-  userIdx: number
   skinIdx: number
 }
 
