@@ -1,0 +1,21 @@
+---
+import Layout from "../layouts/Layout.astro"
+import Vinos from "../skins/Vinos.svelte"
+import Default from "../skins/Default.astro"
+
+const { id } = Astro.params
+const menu: Menu = await (
+  await fetch(`http://localhost:4321/menus/${id}.json`)
+).json()
+
+const components: any = {
+  0: Default,
+  1: Vinos,
+}
+
+const Component = components[menu.skinIdx]
+---
+
+<Layout title="Welcome to Astro.">
+  <Vinos menu={menu} client:only="svelte" />
+</Layout>
