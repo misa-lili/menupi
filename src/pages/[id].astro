@@ -7,15 +7,10 @@ const { id } = Astro.params
 const menu: Menu = await (
   await fetch(`http://localhost:4321/menus/${id}.json`)
 ).json()
-
-const components: any = {
-  0: Default,
-  1: Vinos,
-}
-
-const Component = components[menu.skinIdx]
 ---
 
 <Layout title="Welcome to Astro.">
-  <Vinos menu={menu} client:only="svelte" />
+  {menu.skinIdx === 0 && <Default menu={menu} />}
+  {menu.skinIdx === 1 && <Vinos menu={menu} client:only="svelte" />}
+  <button id="change">change</button>
 </Layout>
