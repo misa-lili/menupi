@@ -46,7 +46,7 @@
 </script>
 
 <section id="skin">
-  <div id="section--title">
+  <section id="titles">
     {#each menu.json.titles || [] as title, idx (title.uuid)}
       {#if idx === 0}
         <div
@@ -80,7 +80,7 @@
     {#if $isAdmin && menu.json.titles.length < 3}
       <button on:click={() => addTitle(menu)}> Add New Title</button>
     {/if}
-  </div>
+  </section>
 
   <!-- Header -->
   <section id="headers">
@@ -284,7 +284,8 @@
     @apply bg-gradient-to-r from-stone-200 to-stone-300;
   }
 
-  #section--title {
+  section#titles {
+    @apply mb-16;
     width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -292,7 +293,7 @@
   }
 
   section#headers {
-    @apply mb-36;
+    @apply mb-16;
     @apply text-sm leading-6;
   }
 
