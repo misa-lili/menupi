@@ -1,6 +1,7 @@
 <script lang="ts">
   import { eventBus, isAdmin } from "../store"
   import {
+    addTitle,
     addHeader,
     moveHeader,
     removeHeader,
@@ -21,17 +22,21 @@
   let menuBackedUp: Menu = JSON.parse(JSON.stringify(menu))
 
   eventBus.subscribe(({ event, detail }) => {
-    if (event === "save") {
-      save(menu, menuBackedUp)
+    const events = {
+      save: () => {
+        save(menu, menuBackedUp)
+      },
+      rollback: () => {
+        if (!confirm("Are you sure you want to roll back?")) return
+        menu = JSON.parse(JSON.stringify(menuBackedUp))
+      },
+      render: () => {
+        menu = menu
+      },
     }
 
-    if (event === "rollback") {
-      if (!confirm("Are you sure you want to roll back?")) return
-      menu = JSON.parse(JSON.stringify(menuBackedUp))
-    }
-
-    if (event === "render") {
-      menu = menu
+    if (events[event]) {
+      events[event]()
     }
   })
 
@@ -72,6 +77,9 @@
         </div>
       {/if}
     {/each}
+    {#if $isAdmin && menu.json.titles.length < 3}
+      <button on:click={() => addTitle(menu)}> Add New Title</button>
+    {/if}
   </div>
 
   <!-- Header -->

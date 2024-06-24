@@ -6,8 +6,10 @@ const airline = faker.airline
 
 export function addTitle(menu: Menu) {
   menu.json.titles.push({
+    uuid: crypto.randomUUID(),
     value: faker.commerce.productName(),
   })
+  eventBus.trigger("render", {})
 }
 
 export function moveTitle(menu: Menu, title: Title, direction: "up" | "down") {
@@ -30,8 +32,10 @@ export function removeTitle(menu: Menu, title: Title) {
 
 export function addHeader(menu: Menu) {
   menu.json.headers.push({
+    uuid: crypto.randomUUID(),
     value: faker.commerce.productName(),
   })
+  eventBus.trigger("render", {})
 }
 
 export function moveHeader(
@@ -58,27 +62,39 @@ export function removeHeader(menu: Menu, header: Header) {
 
 export function addGroup(menu: Menu) {
   menu.json.groups.push({
+    uuid: crypto.randomUUID(),
     value: airline.airline().name,
     cols: [
       {
+        uuid: crypto.randomUUID(),
         value: "Flight number",
       },
       {
+        uuid: crypto.randomUUID(),
         value: "Seat",
       },
     ],
     items: [
       {
+        uuid: crypto.randomUUID(),
         value: airline.airplane().name,
         descriptions: [
           {
+            uuid: crypto.randomUUID(),
             value: getFlightDescriotion(),
           },
         ],
-        prices: [{ value: airline.flightNumber() }, { value: airline.seat() }],
+        prices: [
+          {
+            uuid: crypto.randomUUID(),
+            value: airline.flightNumber(),
+          },
+          { uuid: crypto.randomUUID(), value: airline.seat() },
+        ],
       },
     ],
   })
+  eventBus.trigger("render", {})
 }
 
 export function moveGroup(menu: Menu, group: Group, direction: "up" | "down") {
@@ -93,13 +109,11 @@ export function moveGroup(menu: Menu, group: Group, direction: "up" | "down") {
   const temp = menu.json.groups[index]
   menu.json.groups[index] = menu.json.groups[newIndex]
   menu.json.groups[newIndex] = temp
-
   eventBus.trigger("render", {})
 }
 
 export function removeGroup(menu: Menu, group: Group) {
   menu.json.groups = menu.json.groups.filter((g) => g !== group)
-
   eventBus.trigger("render", {})
 }
 
@@ -129,10 +143,17 @@ export function moveColumn(
 
 export function addItem(menu: Menu, group: Group) {
   group.items.push({
+    uuid: crypto.randomUUID(),
     value: airline.airplane().name,
-    descriptions: [{ value: getFlightDescriotion() }],
-    prices: [{ value: airline.flightNumber() }, { value: airline.seat() }],
+    descriptions: [
+      { uuid: crypto.randomUUID(), value: getFlightDescriotion() },
+    ],
+    prices: [
+      { uuid: crypto.randomUUID(), value: airline.flightNumber() },
+      { uuid: crypto.randomUUID(), value: airline.seat() },
+    ],
   })
+  eventBus.trigger("render", {})
 }
 
 export async function moveItem(
@@ -178,7 +199,11 @@ export function removeItem(menu: Menu, item: Item) {
 }
 
 export function addFooter(menu: Menu) {
-  menu.json.footers.push({ value: faker.commerce.productDescription() })
+  menu.json.footers.push({
+    uuid: crypto.randomUUID(),
+    value: faker.commerce.productDescription(),
+  })
+  eventBus.trigger("render", {})
 }
 
 export function moveFooter(
@@ -232,8 +257,4 @@ export async function save(menu: Menu, menuBackedUp: Menu) {
     alert("Saved")
     menuBackedUp = JSON.parse(JSON.stringify(menu))
   }
-}
-
-function render(menu: Menu) {
-  menu = menu
 }
