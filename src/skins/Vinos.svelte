@@ -1,88 +1,40 @@
 <script lang="ts">
   import { isAdmin, menu } from "../store"
+  import {
+    addGroup,
+    moveGroup,
+    removeGroup,
+    addItem,
+    moveItem,
+    removeItem,
+  } from "../libs/utils"
 
-  const menuBackedUp = JSON.parse(JSON.stringify($menu))
-
-  function addGroup() {
-    $menu.groups.push({
-      uuid: "new-group",
-      value: "New Group",
-      cols: [],
-      items: [
-        {
-          uuid: "new-item",
-          value: "New Item",
-          descriptions: [{ value: "Description" }],
-          prices: [{ value: "Price 1" }, { value: "Price 2" }],
-        },
-      ],
-    })
-    $menu = $menu
-  }
-
-  function moveGroup(group: Group, direction: "up" | "down") {
-    const index = $menu.groups.indexOf(group)
-    if (
-      (direction === "up" && index === 0) ||
-      (direction === "down" && index === $menu.groups.length - 1)
-    ) {
-      return
-    }
-    const newIndex = direction === "up" ? index - 1 : index + 1
-    const temp = $menu.groups[index]
-    $menu.groups[index] = $menu.groups[newIndex]
-    $menu.groups[newIndex] = temp
-    $menu = $menu
-  }
-
-  function removeGroup(group: Group) {
-    $menu.groups = $menu.groups.filter((g) => g !== group)
-    $menu = $menu
-  }
-
-  function addItem(group: Group) {
-    group.items.push({
-      uuid: "new-item",
-      value: "New Item",
-      descriptions: [{ value: "Description" }],
-      prices: [{ value: "Price 1" }, { value: "Price 2" }],
-    })
-    $menu = $menu
-  }
-
-  function moveItem(item: Item, direction: "up" | "down") {
-    const group = $menu.groups.find((group) => group.items.includes(item))
-    const index = group.items.indexOf(item)
-    if (
-      (direction === "up" && index === 0) ||
-      (direction === "down" && index === group.items.length - 1)
-    ) {
-      return
-    }
-    const newIndex = direction === "up" ? index - 1 : index + 1
-    const temp = group.items[index]
-    group.items[index] = group.items[newIndex]
-    group.items[newIndex] = temp
-    $menu = $menu
-  }
-
-  function removeItem(item: Item) {
-    const group = $menu.groups.find((group) => group.items.includes(item))
-    group.items = group.items.filter((i) => i !== item)
-    $menu = $menu
-  }
+  const randomGroupValues = [
+    "Tintos",
+    "Blancos",
+    "Rosados",
+    "Espumosos",
+    "Dulces",
+    "Secos",
+    "Generosos",
+    "Jóvenes",
+    "Crianza",
+    "Reserva",
+    "Gran Reserva",
+    "Vendimia Tardía",
+  ]
 </script>
 
-<main>
+<section id="skin">
   <div id="section--title">
     <div id="title-value" contenteditable={$isAdmin}>
-      {$menu.titles?.at(0)?.value ?? ""}
+      {$menu.json.titles?.at(0)?.value ?? "Vinos"}
     </div>
-    <div class="center" contenteditable={$isAdmin}>
-      {$menu.titles.at(1)?.value ?? ""}
+    <div class="text-center" contenteditable={$isAdmin}>
+      {$menu.json.titles.at(1)?.value ?? "🍷"}
     </div>
-    <div id="header" class="end" contenteditable={$isAdmin}>
-      {$menu.headers?.at(0)?.value ?? ""}
+    <div id="header" class="text-end" contenteditable={$isAdmin}>
+      {$menu.json.headers?.at(0)?.value ?? "@bar_vinos"}
     </div>
   </div>
 
@@ -90,7 +42,7 @@
   <br />
   <br />
 
-  {#each $menu.groups || [] as group, idx}
+  {#each $menu.json.groups || [] as group, idx}
     {#if $isAdmin}
       <div class="group-editor">
         <button on:click={() => moveGroup(group, "up")}> Move Group Up </button>
@@ -164,27 +116,30 @@
   <br />
 
   <!-- Footer -->
-  {#each $menu.footers || [] as footer}
+  {#each $menu.json.footers || [] as footer}
     <div class="footer" contenteditable={$isAdmin}>
       {footer.value}
     </div>
   {/each}
-</main>
+</section>
 
 <style>
-  main {
-    margin: auto;
-    padding: 10vw;
-    max-width: 600px;
-    min-height: 100vh;
-    height: 100%;
+  hr {
+    @apply h-px  bg-stone-600 border-0 m-0;
+  }
+  section#skin {
+    @apply container m-auto;
+
+    @apply w-full p-12;
+    @apply lg:max-w-screen-md lg:p-16;
+
     border-radius: 2rem;
     background: linear-gradient(145deg, #f5f0ea, #e6d9d9);
-
     color: #1d1918;
     font-size: 16px;
     line-height: 1.6;
   }
+
   #section--title {
     width: 100%;
     display: grid;
@@ -228,12 +183,6 @@
     font-size: 12px;
   }
 
-  hr {
-    margin: 0;
-    opacity: 0.6;
-    background-color: black;
-  }
-
   .grid {
     display: grid;
     grid-template-columns: 8fr 2fr 2fr;
@@ -243,12 +192,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  .end {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
   }
 
   .item--value {

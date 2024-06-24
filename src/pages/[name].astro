@@ -1,0 +1,13 @@
+---
+import Layout from "../layouts/Layout.astro"
+import Main from "../components/Main.svelte"
+
+const { name } = Astro.params
+const menu: Menu = await (
+  await fetch(`http://localhost:4321/menus?name=${name}`)
+).json()
+---
+
+<Layout title={menu.name ?? "menupi"}>
+  <Main menu={menu} client:load />
+</Layout>
