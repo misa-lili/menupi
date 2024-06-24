@@ -1,6 +1,9 @@
 <script lang="ts">
   import { eventBus, isAdmin } from "../store"
   import {
+    addHeader,
+    moveHeader,
+    removeHeader,
     addGroup,
     moveGroup,
     removeGroup,
@@ -12,7 +15,7 @@
     removeFooter,
     save,
   } from "../libs/utils"
-  import { onDestroy, onMount } from "svelte"
+  import { onDestroy, onMount, tick } from "svelte"
 
   export let menu: Menu
   let menuBackedUp: Menu = JSON.parse(JSON.stringify(menu))
@@ -25,6 +28,10 @@
     if (event === "rollback") {
       if (!confirm("Are you sure you want to roll back?")) return
       menu = JSON.parse(JSON.stringify(menuBackedUp))
+    }
+
+    if (event === "render") {
+      menu = menu
     }
   })
 
@@ -39,6 +46,7 @@
       {#if idx === 0}
         <div
           id={title.uuid}
+          class="title-value"
           contenteditable={$isAdmin}
           on:input={(e) => (title.value = e.target.textContent)}
         >
@@ -66,15 +74,62 @@
     {/each}
   </div>
 
-  <br />
-  <br />
-  <br />
+  <!-- Header -->
+  <section id="headers">
+    {#each menu.json.headers || [] as header, idx (header.uuid)}
+      {#if $isAdmin}
+        <div class="editor">
+          <button on:click={() => moveHeader(menu, header, "up")}> Up </button>
+          <button on:click={() => moveHeader(menu, header, "down")}>
+            Down
+          </button>
+          <button on:click={() => removeHeader(menu, header)}>
+            Remove Header
+          </button>
+        </div>
+      {/if}
+      <p
+        id={header.uuid}
+        contenteditable={$isAdmin}
+        on:input={(e) => (header.value = e.target.textContent)}
+      >
+        {header.value}
+      </p>
+    {/each}
+    {#if $isAdmin}
+      <button on:click={() => addHeader(menu)}> Add New Header</button>
+    {/if}
+  </section>
 
   {#each menu.json.groups || [] as group, idx (group.uuid)}
     {#if $isAdmin}
       <div class="group-editor">
-        <button on:click={() => moveGroup(menu, group, "up")}> Up </button>
-        <button on:click={() => moveGroup(menu, group, "down")}> Down </button>
+        <button
+          on:click={async () => {
+            moveGroup(menu, group, "up")
+            await tick()
+            document
+              .getElementById(group.uuid)
+              .scrollIntoView({ behavior: "smooth", block: "center" })
+            await tick()
+            document.getElementById(group.uuid).focus({ preventScroll: true })
+          }}
+        >
+          Up
+        </button>
+        <button
+          on:click={async (target) => {
+            moveGroup(menu, group, "down")
+            await tick()
+            document
+              .getElementById(group.uuid)
+              .scrollIntoView({ behavior: "smooth", block: "center" })
+            await tick()
+            document.getElementById(group.uuid).focus({ preventScroll: true })
+          }}
+        >
+          Down
+        </button>
         <button on:click={() => removeGroup(menu, group)}>
           Remove Group
         </button>
@@ -94,7 +149,8 @@
         {#each group.cols || [] as col, idx (col.uuid)}
           {#if idx === 0}
             <div
-              class="center"
+              id={col.uuid}
+              class="column center"
               contenteditable={$isAdmin}
               on:input={(e) => (col.value = e.target.textContent)}
             >
@@ -102,7 +158,8 @@
             </div>
           {:else if idx === 1}
             <div
-              class="center"
+              id={col.uuid}
+              class="column center"
               contenteditable={$isAdmin}
               on:input={(e) => (col.value = e.target.textContent)}
             >
@@ -113,7 +170,7 @@
       </div>
       <hr />
       <ul>
-        {#each group.items || [] as item}
+        {#each group.items || [] as item (item.uuid)}
           {#if $isAdmin}
             <div class="item-editor">
               <button on:click={() => moveItem(menu, item, "up")}> Up </button>
@@ -170,53 +227,53 @@
     <button on:click={() => addGroup(menu)}> Add New Group </button>
   {/if}
 
-  <br />
-  <br />
-  <br />
-
   <!-- Footer -->
-  {#each menu.json.footers || [] as footer, idx (footer.uuid)}
+  <section id="footer">
+    {#each menu.json.footers || [] as footer, idx (footer.uuid)}
+      {#if $isAdmin}
+        <div class="footer-editor">
+          <button on:click={() => moveFooter(menu, footer, "up")}> Up </button>
+          <button on:click={() => moveFooter(menu, footer, "down")}>
+            Down
+          </button>
+          <button on:click={() => removeFooter(menu, footer)}>
+            Remove Footer
+          </button>
+        </div>
+      {/if}
+      <p
+        id={footer.uuid}
+        class="footer"
+        contenteditable={$isAdmin}
+        on:input={(e) => (footer.value = e.target.textContent)}
+      >
+        {footer.value}
+      </p>
+    {/each}
     {#if $isAdmin}
-      <div class="footer-editor">
-        <button on:click={() => moveFooter(menu, footer, "up")}> Up </button>
-        <button on:click={() => moveFooter(menu, footer, "down")}>
-          Down
-        </button>
-        <button on:click={() => removeFooter(menu, footer)}>
-          Remove Footer
-        </button>
-      </div>
+      <button on:click={() => addFooter(menu)}> Add New Footer</button>
     {/if}
-    <div
-      id={footer.uuid}
-      class="footer"
-      contenteditable={$isAdmin}
-      on:input={(e) => (footer.value = e.target.textContent)}
-    >
-      {footer.value}
-    </div>
-  {/each}
-
-  {#if $isAdmin}
-    <button on:click={() => addFooter(menu)}> Add New Footer</button>
-  {/if}
+  </section>
 </section>
 
 <style>
   hr {
     @apply h-px  bg-stone-600 border-0 m-0;
   }
+
+  div.editor {
+    @apply -mt-0;
+  }
+
   section#skin {
     @apply container m-auto;
 
     @apply w-full p-12;
     @apply lg:max-w-screen-md lg:p-16;
 
-    border-radius: 2rem;
-    background: linear-gradient(145deg, #f5f0ea, #e6d9d9);
-    color: #1d1918;
-    font-size: 16px;
-    line-height: 1.6;
+    @apply text-base text-stone-800;
+    @apply rounded-3xl;
+    @apply bg-gradient-to-r from-stone-200 to-stone-300;
   }
 
   #section--title {
@@ -226,7 +283,30 @@
     align-items: center;
   }
 
-  #title-value {
+  section#headers {
+    @apply mb-36;
+    @apply text-sm leading-6;
+  }
+
+  section#headers p {
+    @apply my-4;
+  }
+
+  div.column {
+    @apply text-center;
+    @apply text-xs font-serif italic;
+  }
+
+  section#footer {
+    @apply mt-36;
+    @apply text-sm leading-6;
+  }
+
+  section#footer p {
+    @apply my-4;
+  }
+
+  .title-value {
     font-weight: 800;
     opacity: 0.9;
   }

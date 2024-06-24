@@ -95,14 +95,15 @@
 <main>
   <section id="top">
     {#if $isAdmin}
-      <button on:click={changeSkin}>Change Skin</button>
+      <!-- <button on:click={changeSkin}>Change Skin</button> -->
       <button on:click={() => eventBus.trigger("save")}>Save</button>
       <button on:click={() => eventBus.trigger("rollback")}>Roll Back</button>
     {/if}
   </section>
 
   {#if menu.json.skinIdx === 0}
-    <Default {menu} />
+    <!-- <Default {menu} /> -->
+    <Vinos {menu} />
   {:else if menu.json.skinIdx === 1}
     <Vinos {menu} />
   {:else}
