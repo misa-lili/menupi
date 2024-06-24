@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { isAdmin, menu } from "../store"
+  import { eventBus, isAdmin } from "../store"
   import {
     addGroup,
     moveGroup,
@@ -7,120 +7,199 @@
     addItem,
     moveItem,
     removeItem,
+    addFooter,
+    moveFooter,
+    removeFooter,
+    save,
   } from "../libs/utils"
+  import { onDestroy, onMount } from "svelte"
 
-  const randomGroupValues = [
-    "Tintos",
-    "Blancos",
-    "Rosados",
-    "Espumosos",
-    "Dulces",
-    "Secos",
-    "Generosos",
-    "Jóvenes",
-    "Crianza",
-    "Reserva",
-    "Gran Reserva",
-    "Vendimia Tardía",
-  ]
+  export let menu: Menu
+  let menuBackedUp: Menu = JSON.parse(JSON.stringify(menu))
+
+  eventBus.subscribe(({ event, detail }) => {
+    if (event === "save") {
+      save(menu, menuBackedUp)
+    }
+
+    if (event === "rollback") {
+      if (!confirm("Are you sure you want to roll back?")) return
+      menu = JSON.parse(JSON.stringify(menuBackedUp))
+    }
+  })
+
+  onDestroy(() => {
+    eventBus.subscribe(() => {})
+  })
 </script>
 
 <section id="skin">
   <div id="section--title">
-    <div id="title-value" contenteditable={$isAdmin}>
-      {$menu.json.titles?.at(0)?.value ?? "Vinos"}
-    </div>
-    <div class="text-center" contenteditable={$isAdmin}>
-      {$menu.json.titles.at(1)?.value ?? "🍷"}
-    </div>
-    <div id="header" class="text-end" contenteditable={$isAdmin}>
-      {$menu.json.headers?.at(0)?.value ?? "@bar_vinos"}
-    </div>
+    {#each menu.json.titles || [] as title, idx (title.uuid)}
+      {#if idx === 0}
+        <div
+          id={title.uuid}
+          contenteditable={$isAdmin}
+          on:input={(e) => (title.value = e.target.textContent)}
+        >
+          {title.value}
+        </div>
+      {:else if idx === 1}
+        <div
+          id={title.uuid}
+          class="text-center"
+          contenteditable={$isAdmin}
+          on:input={(e) => (title.value = e.target.textContent)}
+        >
+          {title.value}
+        </div>
+      {:else if idx === 2}
+        <div
+          id={title.uuid}
+          class="header text-end"
+          contenteditable={$isAdmin}
+          on:input={(e) => (title.value = e.target.textContent)}
+        >
+          {title.value}
+        </div>
+      {/if}
+    {/each}
   </div>
 
   <br />
   <br />
   <br />
 
-  {#each $menu.json.groups || [] as group, idx}
+  {#each menu.json.groups || [] as group, idx (group.uuid)}
     {#if $isAdmin}
       <div class="group-editor">
-        <button on:click={() => moveGroup(group, "up")}> Move Group Up </button>
-        <button on:click={() => moveGroup(group, "down")}>
-          Move Group Down
-        </button>
-        <button on:click={() => removeGroup(group)}>
-          Remove {group.value} Group
+        <button on:click={() => moveGroup(menu, group, "up")}> Up </button>
+        <button on:click={() => moveGroup(menu, group, "down")}> Down </button>
+        <button on:click={() => removeGroup(menu, group)}>
+          Remove Group
         </button>
       </div>
     {/if}
     <div class="group">
       <div class="grid">
-        <div class="group--value" contenteditable={$isAdmin}>
+        <div
+          id={group.uuid}
+          class="group--value uppercase"
+          contenteditable={$isAdmin}
+          on:input={(e) => (group.value = e.target.textContent)}
+        >
           {group.value}
         </div>
 
-        <div class="center" contenteditable={$isAdmin}>
-          {group.cols?.at(0)?.value ?? ""}
-        </div>
-        <div class="center" contenteditable={$isAdmin}>
-          {group.cols?.at(1)?.value ?? ""}
-        </div>
+        {#each group.cols || [] as col, idx (col.uuid)}
+          {#if idx === 0}
+            <div
+              class="center"
+              contenteditable={$isAdmin}
+              on:input={(e) => (col.value = e.target.textContent)}
+            >
+              {col.value}
+            </div>
+          {:else if idx === 1}
+            <div
+              class="center"
+              contenteditable={$isAdmin}
+              on:input={(e) => (col.value = e.target.textContent)}
+            >
+              {col.value}
+            </div>
+          {/if}
+        {/each}
       </div>
       <hr />
       <ul>
         {#each group.items || [] as item}
           {#if $isAdmin}
             <div class="item-editor">
-              <button on:click={() => moveItem(item, "up")}>
-                Move Item Up
+              <button on:click={() => moveItem(menu, item, "up")}> Up </button>
+              <button on:click={() => moveItem(menu, item, "down")}>
+                Down
               </button>
-              <button on:click={() => moveItem(item, "down")}>
-                Move Item Down
-              </button>
-              <button on:click={() => removeItem(item)}>
-                Remove {item.value} Item
+              <button on:click={() => removeItem(menu, item)}>
+                Remove Item
               </button>
             </div>
           {/if}
           <li>
             <div class="grid">
               <div>
-                <div class="item--value" contenteditable={$isAdmin}>
+                <div
+                  id={item.uuid}
+                  class="item--value uppercase"
+                  contenteditable={$isAdmin}
+                  on:input={(e) => (item.value = e.target.textContent)}
+                >
                   {item.value}
                 </div>
-                <div class="item--description" contenteditable={$isAdmin}>
-                  {item.descriptions?.at(0)?.value ?? ""}
+                {#each item.descriptions || [] as description, idx (description.uuid)}
+                  <div
+                    id={description.uuid}
+                    class="item--description"
+                    contenteditable={$isAdmin}
+                    on:input={(e) => (description.value = e.target.textContent)}
+                  >
+                    {description.value}
+                  </div>
+                {/each}
+              </div>
+              {#each item.prices || [] as price, idx (price.uuid)}
+                <div
+                  id={price.uuid}
+                  class="center item--price"
+                  contenteditable={$isAdmin}
+                  on:input={(e) => (price.value = e.target.textContent)}
+                >
+                  {price.value}
                 </div>
-              </div>
-              <div class="center item--price" contenteditable={$isAdmin}>
-                {item.prices?.at(0)?.value ?? ""}
-              </div>
-              <div class="center item--price" contenteditable={$isAdmin}>
-                {item.prices?.at(0)?.value ?? ""}
-              </div>
+              {/each}
             </div>
           </li>
         {/each}
       </ul>
       {#if $isAdmin}
-        <button on:click={() => addItem(group)}> Add New Item </button>
+        <button on:click={() => addItem(menu, group)}> Add New Item </button>
       {/if}
     </div>
   {/each}
   {#if $isAdmin}
-    <button on:click={addGroup}> Add New Group </button>
+    <button on:click={() => addGroup(menu)}> Add New Group </button>
   {/if}
+
   <br />
   <br />
   <br />
 
   <!-- Footer -->
-  {#each $menu.json.footers || [] as footer}
-    <div class="footer" contenteditable={$isAdmin}>
+  {#each menu.json.footers || [] as footer, idx (footer.uuid)}
+    {#if $isAdmin}
+      <div class="footer-editor">
+        <button on:click={() => moveFooter(menu, footer, "up")}> Up </button>
+        <button on:click={() => moveFooter(menu, footer, "down")}>
+          Down
+        </button>
+        <button on:click={() => removeFooter(menu, footer)}>
+          Remove Footer
+        </button>
+      </div>
+    {/if}
+    <div
+      id={footer.uuid}
+      class="footer"
+      contenteditable={$isAdmin}
+      on:input={(e) => (footer.value = e.target.textContent)}
+    >
       {footer.value}
     </div>
   {/each}
+
+  {#if $isAdmin}
+    <button on:click={() => addFooter(menu)}> Add New Footer</button>
+  {/if}
 </section>
 
 <style>
@@ -152,7 +231,7 @@
     opacity: 0.9;
   }
 
-  #header {
+  .header {
     font-size: 14px;
     font-weight: 600;
     font-style: italic;

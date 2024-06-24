@@ -26,15 +26,24 @@ type Group = {
   uuid?: string
   value: string
   items: Item[]
-  cols?: { uuid?: string; value: string; src?: string }[]
+  cols: Column[]
+  src?: string
+}
+
+type Column = {
+  uuid?: string
+  value: string
   src?: string
 }
 
 type Item = {
   uuid?: string
   value: string
-  prices: { uuid?: string; value: string; src?: string }[]
-  descriptions?: { uuid?: string; value: string; src?: string }[]
+  prices: Price[]
+  descriptions: description[]
   out?: boolean
   src?: string
 }
+
+type Price = { uuid?: string; value: string; src?: string }
+type description = { uuid?: string; value: string; src?: string }

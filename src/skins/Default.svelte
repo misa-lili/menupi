@@ -1,16 +1,18 @@
 <script lang="ts">
-  import { isAdmin, menu } from "../store"
+  import { isAdmin } from "../store"
   import { addGroup } from "../libs/utils"
+
+  export let menu: Menu
 </script>
 
-<h1>{$menu.json.titles?.at(0)?.value ?? "New Menu"}</h1>
+<h1>{menu.json.titles?.at(0)?.value ?? "New Menu"}</h1>
 <h1>admin: {$isAdmin}</h1>
 
-{#each $menu.json.titles as title}
+{#each menu.json.titles as title}
   <h1>{title.value}</h1>
 {/each}
 
-{#each $menu.json.groups as group}
+{#each menu.json.groups as group}
   <div>
     <h2>{group.value}</h2>
     {#each group.items as item}

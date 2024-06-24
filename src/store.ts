@@ -1,4 +1,15 @@
 import { writable } from "svelte/store"
 
-export const menu = writable<Menu>()
 export const isAdmin = writable(false)
+export const eventBus = createEventBus()
+
+function createEventBus() {
+  const { subscribe, set } = writable({})
+
+  return {
+    subscribe,
+    trigger: (event: string, detail: any) => {
+      set({ event, detail })
+    },
+  }
+}

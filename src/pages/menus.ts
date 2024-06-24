@@ -16,7 +16,7 @@ export const POST: APIRoute = async ({ params, request }) => {
 
     // ::: Special API
     // Check if name already exists API
-    if (body.name && body.email === undefined && body.password === undefined) {
+    if (body.email === undefined && body.password === undefined) {
       const exist = await pool
         .query("SELECT * FROM menus_v3 WHERE name = $1", [
           body.name.toLowerCase(),
@@ -28,6 +28,24 @@ export const POST: APIRoute = async ({ params, request }) => {
         })
       }
       return new Response(null, { status: 200 })
+    }
+
+    // ::: Special API
+    // login API
+    if (body.email === undefined && body.password) {
+      const hashedPassword = await pool
+        .query("SELECT hashed_password FROM menus_v3 WHERE name = $1", [
+          body.name.toLowerCase(),
+        ])
+        .then((res) => res.rows[0].hashed_password)
+      const verified = await Bun.password.verify(body.password, hashedPassword)
+      if (verified) {
+        return new Response(null, { status: 200 })
+      } else {
+        return new Response(JSON.stringify({ error: "invalid password" }), {
+          status: 401,
+        })
+      }
     }
 
     // Verify body
@@ -77,8 +95,6 @@ export const GET: APIRoute = async ({ params, request }) => {
         name,
       ])
       .then((res) => res.rows[0])
-
-    console.log(menu)
 
     return new Response(JSON.stringify(menu))
   } catch (error: any) {
@@ -140,6 +156,42 @@ export const PATCH: APIRoute = async ({ params, request }) => {
     }
 
     if (body.newJson) {
+      body.newJson.titles = body.newJson.titles.map((title) => ({
+        ...title,
+        ...(!title.uuid && { uuid: crypto.randomUUID() }),
+      }))
+
+      body.newJson.headers = body.newJson.headers.map((header) => ({
+        ...header,
+        ...(!header.uuid && { uuid: crypto.randomUUID() }),
+      }))
+
+      body.newJson.groups = body.newJson.groups.map((group) => ({
+        ...group,
+        ...(!group.uuid && { uuid: crypto.randomUUID() }),
+        cols: group.cols.map((col) => ({
+          ...col,
+          ...(!col.uuid && { uuid: crypto.randomUUID() }),
+        })),
+        items: group.items.map((item) => ({
+          ...item,
+          ...(!item.uuid && { uuid: crypto.randomUUID() }),
+          descriptions: item.descriptions.map((description) => ({
+            ...description,
+            ...(!description.uuid && { uuid: crypto.randomUUID() }),
+          })),
+          prices: item.prices.map((price) => ({
+            ...price,
+            ...(!price.uuid && { uuid: crypto.randomUUID() }),
+          })),
+        })),
+      }))
+
+      body.newJson.footers = body.newJson.footers.map((footer) => ({
+        ...footer,
+        ...(!footer.uuid && { uuid: crypto.randomUUID() }),
+      }))
+
       await pool.query("UPDATE menus_v3 SET json = $1 WHERE name = $2", [
         body.newJson,
         body.name.toLowerCase(),
@@ -148,6 +200,7 @@ export const PATCH: APIRoute = async ({ params, request }) => {
 
     return new Response(null, { status: 200 })
   } catch (error: any) {
+    console.error(error)
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
     })

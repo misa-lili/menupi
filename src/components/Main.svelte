@@ -1,13 +1,9 @@
 <script lang="ts">
-  import { menu as menuStored, isAdmin } from "../store"
+  import { isAdmin, eventBus } from "../store"
   import Vinos from "../skins/Vinos.svelte"
   import Default from "../skins/Default.svelte"
 
   export let menu: Menu
-
-  $menuStored = menu
-
-  const components = [Default, Vinos]
 
   function changeSkin() {
     if (
@@ -25,8 +21,25 @@
     }
   }
 
-  function login() {
-    $isAdmin = true
+  async function login() {
+    const response = await fetch("http://localhost:4321/menus", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: menu.name,
+        password: prompt("Enter your password"),
+      }),
+    })
+
+    if (response.ok) {
+      // verified
+      $isAdmin = true
+    } else {
+      // invalid password
+      alert("Failed to login")
+    }
   }
 
   function logout() {
@@ -36,7 +49,7 @@
   async function createNewMenu() {
     const name = prompt("Enter the name of the new menu")
     if (name === null) {
-      return alert("Name is required")
+      return
     }
     const exist = await fetch(`http://localhost:4321/menus`, {
       method: "POST",
@@ -47,11 +60,11 @@
     }
     const email = prompt("Enter your email")
     if (email === null) {
-      return alert("Email is required")
+      return
     }
     const password = prompt("Enter your password")
     if (password === null) {
-      return alert("Password is required")
+      return
     }
     const confirmPassword = prompt("Confirm your password")
     if (confirmPassword !== password) {
@@ -80,29 +93,33 @@
 </script>
 
 <main>
+  <section id="top">
+    {#if $isAdmin}
+      <button on:click={changeSkin}>Change Skin</button>
+      <button on:click={() => eventBus.trigger("save")}>Save</button>
+      <button on:click={() => eventBus.trigger("rollback")}>Roll Back</button>
+    {/if}
+  </section>
+
   {#if menu.json.skinIdx === 0}
-    <Default />
+    <Default {menu} />
   {:else if menu.json.skinIdx === 1}
-    <Vinos />
+    <Vinos {menu} />
   {:else}
     <p>Unknown skin</p>
   {/if}
 
-  <section>
+  <section id="bottom">
     <div>
-      {#if $isAdmin}
-        <button on:click={logout}>Logout</button>
-      {:else}
+      {#if !$isAdmin}
         <button on:click={login}>Login</button>
+      {:else}
+        <button on:click={logout}>Logout</button>
       {/if}
     </div>
+    <div></div>
     <div>
-      <button on:click={changeSkin}>Change Skin</button>
-    </div>
-    <div>
-      <p>
-        <a on:click={createNewMenu}>Create new menu</a>
-      </p>
+      <button on:click={createNewMenu}>Create new menu</button>
     </div>
     <div>Made with Menupi</div>
     <div>
@@ -115,9 +132,20 @@
   main {
     @apply p-3;
   }
-  section {
+
+  section#top {
+    @apply font-serif font-light text-sm text-stone-600;
+    @apply text-end;
+  }
+  section#bottom {
     @apply font-serif font-light text-sm text-stone-600;
     @apply text-end;
     @apply my-9;
+  }
+
+  :global(button) {
+    @apply bg-stone-600 text-white p-0 pr-1 mb-0.5;
+    @apply hover:bg-stone-700;
+    @apply text-stone-300 font-thin italic font-mono;
   }
 </style>

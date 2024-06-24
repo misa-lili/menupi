@@ -1,57 +1,90 @@
-import { get } from "svelte/store"
-import { menu } from "../store"
-// import { randomUUID } from "crypto"
+import { faker } from "@faker-js/faker"
 
-export function addGroup() {
-  get(menu).json.groups.push({
-    value: "New Group",
-    cols: [],
+const airline = faker.airline
+
+export function addTitle(menu: Menu) {
+  menu.json.titles.push({
+    value: faker.commerce.productName(),
+  })
+}
+
+export function addGroup(menu: Menu) {
+  menu.json.groups.push({
+    value: airline.airline().name,
+    cols: [
+      {
+        value: "Flight number",
+      },
+      {
+        value: "Seat",
+      },
+    ],
     items: [
       {
-        uuid: "new-item",
-        value: "New Item",
-        descriptions: [{ value: "Description" }],
-        prices: [{ value: "Price 1" }, { value: "Price 2" }],
+        value: airline.airplane().name,
+        descriptions: [
+          {
+            value: getFlightDescriotion(),
+          },
+        ],
+        prices: [{ value: airline.flightNumber() }, { value: airline.seat() }],
       },
     ],
   })
-  menu.set(get(menu))
 }
 
-export function moveGroup(group: Group, direction: "up" | "down") {
-  const index = get(menu).json.groups.indexOf(group)
+export function moveGroup(menu: Menu, group: Group, direction: "up" | "down") {
+  const index = menu.json.groups.indexOf(group)
   if (
     (direction === "up" && index === 0) ||
-    (direction === "down" && index === get(menu).json.groups.length - 1)
+    (direction === "down" && index === menu.json.groups.length - 1)
   ) {
     return
   }
   const newIndex = direction === "up" ? index - 1 : index + 1
-  const temp = get(menu).json.groups[index]
-  get(menu).json.groups[index] = get(menu).json.groups[newIndex]
-  get(menu).json.groups[newIndex] = temp
-  menu.set(get(menu))
+  const temp = menu.json.groups[index]
+  menu.json.groups[index] = menu.json.groups[newIndex]
+  menu.json.groups[newIndex] = temp
 }
 
-export function removeGroup(group: Group) {
-  get(menu).json.groups = get(menu).json.groups.filter((g) => g !== group)
-  menu.set(get(menu))
+export function removeGroup(menu: Menu, group: Group) {
+  menu.json.groups = menu.json.groups.filter((g) => g !== group)
 }
 
-export function addItem(group: Group) {
+export function addColumn(menu: Menu, group: Group) {
+  if (!group.cols) group.cols = []
+  group.cols.push({ value: faker.commerce.product() })
+}
+
+export function moveColumn(
+  menu: Menu,
+  group: Group,
+  col: Column,
+  direction: "left" | "right",
+) {
+  const index = group.cols.indexOf(col)
+  if (
+    (direction === "left" && index === 0) ||
+    (direction === "right" && index === group.cols.length - 1)
+  ) {
+    return
+  }
+  const newIndex = direction === "left" ? index - 1 : index + 1
+  const temp = group.cols[index]
+  group.cols[index] = group.cols[newIndex]
+  group.cols[newIndex] = temp
+}
+
+export function addItem(menu: Menu, group: Group) {
   group.items.push({
-    uuid: "new-item",
-    value: "New Item",
-    descriptions: [{ value: "Description" }],
-    prices: [{ value: "Price 1" }, { value: "Price 2" }],
+    value: airline.airplane().name,
+    descriptions: [{ value: getFlightDescriotion() }],
+    prices: [{ value: airline.flightNumber() }, { value: airline.seat() }],
   })
-  menu.set(get(menu))
 }
 
-export function moveItem(item: Item, direction: "up" | "down") {
-  const group = get(menu).json.groups.find((group) =>
-    group.items.includes(item),
-  )
+export function moveItem(menu: Menu, item: Item, direction: "up" | "down") {
+  const group = menu.json.groups.find((group) => group.items.includes(item))
 
   if (!group) return
 
@@ -66,16 +99,69 @@ export function moveItem(item: Item, direction: "up" | "down") {
   const temp = group.items[index]
   group.items[index] = group.items[newIndex]
   group.items[newIndex] = temp
-  menu.set(get(menu))
 }
 
-export function removeItem(item: Item) {
-  const group = get(menu).json.groups.find((group) =>
-    group.items.includes(item),
-  )
+export function removeItem(menu: Menu, item: Item) {
+  const group = menu.json.groups.find((group) => group.items.includes(item))
 
   if (!group) return
 
   group.items = group.items.filter((i) => i !== item)
-  menu.set(get(menu))
+}
+
+export function addFooter(menu: Menu) {
+  menu.json.footers.push({ value: faker.commerce.productDescription() })
+}
+
+export function moveFooter(
+  menu: Menu,
+  footer: Footer,
+  direction: "up" | "down",
+) {
+  const index = menu.json.footers.indexOf(footer)
+  if (
+    (direction === "up" && index === 0) ||
+    (direction === "down" && index === menu.json.footers.length - 1)
+  ) {
+    return
+  }
+  const newIndex = direction === "up" ? index - 1 : index + 1
+  const temp = menu.json.footers[index]
+  menu.json.footers[index] = menu.json.footers[newIndex]
+  menu.json.footers[newIndex] = temp
+}
+
+export function removeFooter(menu: Menu, footer: Footer) {
+  menu.json.footers = menu.json.footers.filter((f) => f !== footer)
+}
+
+function getFlightDescriotion() {
+  // prettier-ignore
+  return `[${airline.aircraftType()}] ${airline.flightNumber()}, ${airline.airport().name}`
+}
+
+export async function save(menu: Menu, menuBackedUp: Menu) {
+  if (!confirm("Are you sure you want to save?")) return
+
+  const password = prompt("Enter password")
+
+  const response = await fetch("http://localhost:4321/menus", {
+    method: "PATCH",
+    body: JSON.stringify({
+      name: menu.name,
+      password,
+      newJson: menu.json,
+    }),
+  })
+
+  if (!response.ok) {
+    console.error(response)
+    console.error(await response.text())
+    alert("Error")
+  }
+
+  if (response.ok) {
+    alert("Saved")
+    menuBackedUp = JSON.parse(JSON.stringify(menu))
+  }
 }
