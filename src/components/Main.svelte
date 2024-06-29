@@ -7,7 +7,7 @@
   } from "../store"
   import { save, rollback, login, logout, createNewMenu } from "../libs/utils"
   import Vinos from "../skins/Vinos.svelte"
-  import Default from "../skins/Default.svelte"
+  import Default from "../skins/Default-v1.svelte"
   import Dosisool from "../skins/Dosisool.svelte"
 
   export let menu: Menu
@@ -16,7 +16,7 @@
     $menuBackedUpStored = JSON.parse(JSON.stringify(menu))
   }
 
-  const skins = ["Default", "Vinos", "Dosisool"]
+  const skins = ["Default-v1", "Vinos", "Dosisool"]
 </script>
 
 <main>

@@ -1,6 +1,6 @@
 import { writable } from "svelte/store"
 
-export const isAdminStored = writable(true)
+export const isAdminStored = writable<boolean>(false)
 export const menuStored = writable<Menu>()
 export const menuBackedUpStored = writable<Menu>()
 export const eventBus = createEventBus()
