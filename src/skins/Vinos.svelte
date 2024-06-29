@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { eventBus, isAdmin } from "../store"
+  import { menuStored, eventBus, isAdminStored } from "../store"
   import {
     addTitle,
     addHeader,
@@ -18,41 +18,28 @@
   } from "../libs/utils"
   import { onDestroy, onMount, tick } from "svelte"
 
-  export let menu: Menu
-  let menuBackedUp: Menu = JSON.parse(JSON.stringify(menu))
-
-  eventBus.subscribe(({ event, detail }) => {
-    const events = {
-      save: () => {
-        save(menu, menuBackedUp)
-      },
-      rollback: () => {
-        if (!confirm("Are you sure you want to roll back?")) return
-        menu = JSON.parse(JSON.stringify(menuBackedUp))
-      },
-      render: () => {
-        menu = menu
-      },
-    }
-
-    if (events[event]) {
-      events[event]()
+  onDestroy(() => {
+    eventBus.subscribe(() => {})
+  })
+  const unsubscribe = eventBus.subscribe(({ event }) => {
+    if (event === "render") {
+      $menuStored = $menuStored
     }
   })
 
   onDestroy(() => {
-    eventBus.subscribe(() => {})
+    if (unsubscribe) unsubscribe()
   })
 </script>
 
 <section id="skin">
   <section id="titles">
-    {#each menu.json.titles || [] as title, idx (title.uuid)}
+    {#each $menuStored.json.titles || [] as title, idx (title.uuid)}
       {#if idx === 0}
         <div
           id={title.uuid}
           class="title-value"
-          contenteditable={$isAdmin}
+          contenteditable={$isAdminStored}
           on:input={(e) => (title.value = e.target.textContent)}
         >
           {title.value}
@@ -61,7 +48,7 @@
         <div
           id={title.uuid}
           class="text-center"
-          contenteditable={$isAdmin}
+          contenteditable={$isAdminStored}
           on:input={(e) => (title.value = e.target.textContent)}
         >
           {title.value}
@@ -70,51 +57,53 @@
         <div
           id={title.uuid}
           class="header text-end"
-          contenteditable={$isAdmin}
+          contenteditable={$isAdminStored}
           on:input={(e) => (title.value = e.target.textContent)}
         >
           {title.value}
         </div>
       {/if}
     {/each}
-    {#if $isAdmin && menu.json.titles.length < 3}
-      <button on:click={() => addTitle(menu)}> Add New Title</button>
+    {#if $isAdminStored && $menuStored.json.titles.length < 3}
+      <button on:click={() => addTitle($menuStored)}> Add New Title</button>
     {/if}
   </section>
 
   <!-- Header -->
   <section id="headers">
-    {#each menu.json.headers || [] as header, idx (header.uuid)}
-      {#if $isAdmin}
+    {#each $menuStored.json.headers || [] as header, idx (header.uuid)}
+      {#if $isAdminStored}
         <div class="editor">
-          <button on:click={() => moveHeader(menu, header, "up")}> Up </button>
-          <button on:click={() => moveHeader(menu, header, "down")}>
+          <button on:click={() => moveHeader($menuStored, header, "up")}>
+            Up
+          </button>
+          <button on:click={() => moveHeader($menuStored, header, "down")}>
             Down
           </button>
-          <button on:click={() => removeHeader(menu, header)}>
+          <button on:click={() => removeHeader($menuStored, header)}>
             Remove Header
           </button>
         </div>
       {/if}
       <p
         id={header.uuid}
-        contenteditable={$isAdmin}
+        contenteditable={$isAdminStored}
         on:input={(e) => (header.value = e.target.textContent)}
       >
         {header.value}
       </p>
     {/each}
-    {#if $isAdmin}
-      <button on:click={() => addHeader(menu)}> Add New Header</button>
+    {#if $isAdminStored}
+      <button on:click={() => addHeader($menuStored)}> Add New Header</button>
     {/if}
   </section>
 
-  {#each menu.json.groups || [] as group, idx (group.uuid)}
-    {#if $isAdmin}
+  {#each $menuStored.json.groups || [] as group, idx (group.uuid)}
+    {#if $isAdminStored}
       <div class="group-editor">
         <button
           on:click={async () => {
-            moveGroup(menu, group, "up")
+            moveGroup($menuStored, group, "up")
             await tick()
             document
               .getElementById(group.uuid)
@@ -127,7 +116,7 @@
         </button>
         <button
           on:click={async (target) => {
-            moveGroup(menu, group, "down")
+            moveGroup($menuStored, group, "down")
             await tick()
             document
               .getElementById(group.uuid)
@@ -138,7 +127,7 @@
         >
           Down
         </button>
-        <button on:click={() => removeGroup(menu, group)}>
+        <button on:click={() => removeGroup($menuStored, group)}>
           Remove Group
         </button>
       </div>
@@ -148,7 +137,7 @@
         <div
           id={group.uuid}
           class="group--value uppercase"
-          contenteditable={$isAdmin}
+          contenteditable={$isAdminStored}
           on:input={(e) => (group.value = e.target.textContent)}
         >
           {group.value}
@@ -159,7 +148,7 @@
             <div
               id={col.uuid}
               class="column center"
-              contenteditable={$isAdmin}
+              contenteditable={$isAdminStored}
               on:input={(e) => (col.value = e.target.textContent)}
             >
               {col.value}
@@ -168,7 +157,7 @@
             <div
               id={col.uuid}
               class="column center"
-              contenteditable={$isAdmin}
+              contenteditable={$isAdminStored}
               on:input={(e) => (col.value = e.target.textContent)}
             >
               {col.value}
@@ -179,13 +168,15 @@
       <hr />
       <ul>
         {#each group.items || [] as item (item.uuid)}
-          {#if $isAdmin}
+          {#if $isAdminStored}
             <div class="item-editor">
-              <button on:click={() => moveItem(menu, item, "up")}> Up </button>
-              <button on:click={() => moveItem(menu, item, "down")}>
+              <button on:click={() => moveItem($menuStored, item, "up")}>
+                Up
+              </button>
+              <button on:click={() => moveItem($menuStored, item, "down")}>
                 Down
               </button>
-              <button on:click={() => removeItem(menu, item)}>
+              <button on:click={() => removeItem($menuStored, item)}>
                 Remove Item
               </button>
             </div>
@@ -196,7 +187,7 @@
                 <div
                   id={item.uuid}
                   class="item--value uppercase"
-                  contenteditable={$isAdmin}
+                  contenteditable={$isAdminStored}
                   on:input={(e) => (item.value = e.target.textContent)}
                 >
                   {item.value}
@@ -205,7 +196,7 @@
                   <div
                     id={description.uuid}
                     class="item--description"
-                    contenteditable={$isAdmin}
+                    contenteditable={$isAdminStored}
                     on:input={(e) => (description.value = e.target.textContent)}
                   >
                     {description.value}
@@ -216,7 +207,7 @@
                 <div
                   id={price.uuid}
                   class="center item--price"
-                  contenteditable={$isAdmin}
+                  contenteditable={$isAdminStored}
                   on:input={(e) => (price.value = e.target.textContent)}
                 >
                   {price.value}
@@ -226,25 +217,29 @@
           </li>
         {/each}
       </ul>
-      {#if $isAdmin}
-        <button on:click={() => addItem(menu, group)}> Add New Item </button>
+      {#if $isAdminStored}
+        <button on:click={() => addItem($menuStored, group)}>
+          Add New Item
+        </button>
       {/if}
     </div>
   {/each}
-  {#if $isAdmin}
-    <button on:click={() => addGroup(menu)}> Add New Group </button>
+  {#if $isAdminStored}
+    <button on:click={() => addGroup($menuStored)}> Add New Group </button>
   {/if}
 
   <!-- Footer -->
   <section id="footer">
-    {#each menu.json.footers || [] as footer, idx (footer.uuid)}
-      {#if $isAdmin}
+    {#each $menuStored.json.footers || [] as footer, idx (footer.uuid)}
+      {#if $isAdminStored}
         <div class="footer-editor">
-          <button on:click={() => moveFooter(menu, footer, "up")}> Up </button>
-          <button on:click={() => moveFooter(menu, footer, "down")}>
+          <button on:click={() => moveFooter($menuStored, footer, "up")}>
+            Up
+          </button>
+          <button on:click={() => moveFooter($menuStored, footer, "down")}>
             Down
           </button>
-          <button on:click={() => removeFooter(menu, footer)}>
+          <button on:click={() => removeFooter($menuStored, footer)}>
             Remove Footer
           </button>
         </div>
@@ -252,14 +247,14 @@
       <p
         id={footer.uuid}
         class="footer"
-        contenteditable={$isAdmin}
+        contenteditable={$isAdminStored}
         on:input={(e) => (footer.value = e.target.textContent)}
       >
         {footer.value}
       </p>
     {/each}
-    {#if $isAdmin}
-      <button on:click={() => addFooter(menu)}> Add New Footer</button>
+    {#if $isAdminStored}
+      <button on:click={() => addFooter($menuStored)}> Add New Footer</button>
     {/if}
   </section>
 </section>

@@ -40,10 +40,10 @@ type Item = {
   uuid?: string
   value: string
   prices: Price[]
-  descriptions: description[]
+  descriptions: Description[]
   out?: boolean
   src?: string
 }
 
 type Price = { uuid?: string; value: string; src?: string }
-type description = { uuid?: string; value: string; src?: string }
+type Description = { uuid?: string; value: string; src?: string }

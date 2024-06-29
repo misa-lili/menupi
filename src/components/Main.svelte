@@ -1,118 +1,48 @@
 <script lang="ts">
-  import { isAdmin, eventBus } from "../store"
+  import {
+    isAdminStored,
+    menuStored,
+    eventBus,
+    menuBackedUpStored,
+  } from "../store"
+  import { save, rollback, login, logout, createNewMenu } from "../libs/utils"
   import Vinos from "../skins/Vinos.svelte"
   import Default from "../skins/Default.svelte"
+  import Dosisool from "../skins/Dosisool.svelte"
 
   export let menu: Menu
-
-  function changeSkin() {
-    if (
-      confirm(
-        "저장하지 않은 변경 사항이 있다면 잃게 됩니다.\n그래도 스킨을 변경하시겠습니까?",
-      ) === false
-    ) {
-      return
-    }
-
-    if (menu.json.skinIdx === 0) {
-      menu.json.skinIdx = 1
-    } else {
-      menu.json.skinIdx = 0
-    }
+  $: {
+    $menuStored = menu
+    $menuBackedUpStored = JSON.parse(JSON.stringify(menu))
   }
 
-  async function login() {
-    const response = await fetch("http://localhost:4321/menus", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: menu.name,
-        password: prompt("Enter your password"),
-      }),
-    })
-
-    if (response.ok) {
-      // verified
-      $isAdmin = true
-    } else {
-      // invalid password
-      alert("Failed to login")
-    }
-  }
-
-  function logout() {
-    $isAdmin = false
-  }
-
-  async function createNewMenu() {
-    const name = prompt("Enter the name of the new menu")
-    if (name === null) {
-      return
-    }
-    const exist = await fetch(`http://localhost:4321/menus`, {
-      method: "POST",
-      body: JSON.stringify({ name }),
-    })
-    if (!exist.ok) {
-      return alert("Name already exists")
-    }
-    const email = prompt("Enter your email")
-    if (email === null) {
-      return
-    }
-    const password = prompt("Enter your password")
-    if (password === null) {
-      return
-    }
-    const confirmPassword = prompt("Confirm your password")
-    if (confirmPassword !== password) {
-      return alert("Passwords do not match")
-    }
-
-    const response = await fetch("http://localhost:4321/menus", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name,
-        email,
-        password,
-      }),
-    })
-
-    if (response.ok) {
-      alert("New menu created")
-      window.location.replace(`/${name}`)
-    } else {
-      alert("Failed to create new menu")
-    }
-  }
+  const skins = ["Default", "Vinos", "Dosisool"]
 </script>
 
 <main>
   <section id="top">
-    {#if $isAdmin}
-      <!-- <button on:click={changeSkin}>Change Skin</button> -->
-      <button on:click={() => eventBus.trigger("save")}>Save</button>
-      <button on:click={() => eventBus.trigger("rollback")}>Roll Back</button>
+    {#if $isAdminStored}
+      <select name="skins" bind:value={$menuStored.json.skinIdx}>
+        {#each skins as skin, idx}
+          <option value={idx}> {skin} </option>
+        {/each}
+      </select>
+      <button on:click={save}>Save</button>
+      <button on:click={rollback}>Roll Back</button>
     {/if}
   </section>
 
-  {#if menu.json.skinIdx === 0}
-    <!-- <Default {menu} /> -->
-    <Vinos {menu} />
-  {:else if menu.json.skinIdx === 1}
-    <Vinos {menu} />
-  {:else}
-    <p>Unknown skin</p>
+  {#if $menuStored.json.skinIdx === 0}
+    <Default />
+  {:else if $menuStored.json.skinIdx === 1}
+    <Vinos />
+  {:else if $menuStored.json.skinIdx === 2}
+    <Dosisool />
   {/if}
 
   <section id="bottom">
     <div>
-      {#if !$isAdmin}
+      {#if !$isAdminStored}
         <button on:click={login}>Login</button>
       {:else}
         <button on:click={logout}>Logout</button>
@@ -138,6 +68,7 @@
     @apply font-serif font-light text-sm text-stone-600;
     @apply text-end;
   }
+
   section#bottom {
     @apply font-serif font-light text-sm text-stone-600;
     @apply text-end;

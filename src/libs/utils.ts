@@ -1,18 +1,26 @@
+import { get } from "svelte/store"
 import { faker } from "@faker-js/faker"
-import { eventBus } from "../store"
+import {
+  eventBus,
+  isAdminStored,
+  menuBackedUpStored,
+  menuStored,
+} from "../store"
 import { tick } from "svelte"
 
 const airline = faker.airline
 
-export function addTitle(menu: Menu) {
+export function addTitle() {
+  const menu: Menu = get(menuStored)
   menu.json.titles.push({
     uuid: crypto.randomUUID(),
     value: faker.commerce.productName(),
   })
-  eventBus.trigger("render", {})
+  menuStored.set(menu)
 }
 
-export function moveTitle(menu: Menu, title: Title, direction: "up" | "down") {
+export function moveTitle(title: Title, direction: "up" | "down") {
+  const menu: Menu = get(menuStored)
   const index = menu.json.titles.indexOf(title)
   if (
     (direction === "up" && index === 0) ||
@@ -24,25 +32,26 @@ export function moveTitle(menu: Menu, title: Title, direction: "up" | "down") {
   const temp = menu.json.titles[index]
   menu.json.titles[index] = menu.json.titles[newIndex]
   menu.json.titles[newIndex] = temp
+  menuStored.set(menu)
 }
 
-export function removeTitle(menu: Menu, title: Title) {
+export function removeTitle(title: Title) {
+  const menu: Menu = get(menuStored)
   menu.json.titles = menu.json.titles.filter((t) => t !== title)
+  menuStored.set(menu)
 }
 
-export function addHeader(menu: Menu) {
+export function addHeader() {
+  const menu: Menu = get(menuStored)
   menu.json.headers.push({
     uuid: crypto.randomUUID(),
     value: faker.commerce.productName(),
   })
-  eventBus.trigger("render", {})
+  menuStored.set(menu)
 }
 
-export function moveHeader(
-  menu: Menu,
-  header: Header,
-  direction: "up" | "down",
-) {
+export function moveHeader(header: Header, direction: "up" | "down") {
+  const menu: Menu = get(menuStored)
   const index = menu.json.headers.indexOf(header)
   if (
     (direction === "up" && index === 0) ||
@@ -54,13 +63,17 @@ export function moveHeader(
   const temp = menu.json.headers[index]
   menu.json.headers[index] = menu.json.headers[newIndex]
   menu.json.headers[newIndex] = temp
+  menuStored.set(menu)
 }
 
-export function removeHeader(menu: Menu, header: Header) {
+export function removeHeader(header: Header) {
+  const menu: Menu = get(menuStored)
   menu.json.headers = menu.json.headers.filter((h) => h !== header)
+  menuStored.set(menu)
 }
 
-export function addGroup(menu: Menu) {
+export function addGroup() {
+  const menu: Menu = get(menuStored)
   menu.json.groups.push({
     uuid: crypto.randomUUID(),
     value: airline.airline().name,
@@ -94,10 +107,11 @@ export function addGroup(menu: Menu) {
       },
     ],
   })
-  eventBus.trigger("render", {})
+  menuStored.set(menu)
 }
 
-export function moveGroup(menu: Menu, group: Group, direction: "up" | "down") {
+export function moveGroup(group: Group, direction: "up" | "down") {
+  const menu: Menu = get(menuStored)
   const index = menu.json.groups.indexOf(group)
   if (
     (direction === "up" && index === 0) ||
@@ -109,39 +123,60 @@ export function moveGroup(menu: Menu, group: Group, direction: "up" | "down") {
   const temp = menu.json.groups[index]
   menu.json.groups[index] = menu.json.groups[newIndex]
   menu.json.groups[newIndex] = temp
-  eventBus.trigger("render", {})
+  menuStored.set(menu)
 }
 
-export function removeGroup(menu: Menu, group: Group) {
+export function removeGroup(group: Group) {
+  const menu: Menu = get(menuStored)
   menu.json.groups = menu.json.groups.filter((g) => g !== group)
-  eventBus.trigger("render", {})
+  menuStored.set(menu)
 }
 
-export function addColumn(menu: Menu, group: Group) {
-  if (!group.cols) group.cols = []
-  group.cols.push({ value: faker.commerce.product() })
+export function addColumn(group: Group) {
+  const menu: Menu = get(menuStored)
+
+  menu.json.groups = menu.json.groups.map((g) => {
+    if (g === group) {
+      if (g.cols === undefined) g.cols = []
+      g.cols.push({
+        uuid: crypto.randomUUID(),
+        value: faker.commerce.product(),
+      })
+    }
+    return g
+  })
+
+  menuStored.set(menu)
 }
 
 export function moveColumn(
-  menu: Menu,
   group: Group,
   col: Column,
-  direction: "left" | "right",
+  direction: "up" | "down",
 ) {
+  const menu: Menu = get(menuStored)
   const index = group.cols.indexOf(col)
   if (
-    (direction === "left" && index === 0) ||
-    (direction === "right" && index === group.cols.length - 1)
+    (direction === "up" && index === 0) ||
+    (direction === "down" && index === group.cols.length - 1)
   ) {
     return
   }
-  const newIndex = direction === "left" ? index - 1 : index + 1
+  const newIndex = direction === "up" ? index - 1 : index + 1
   const temp = group.cols[index]
   group.cols[index] = group.cols[newIndex]
   group.cols[newIndex] = temp
+  menuStored.set(menu)
 }
 
-export function addItem(menu: Menu, group: Group) {
+export function removeColumn(group: Group, col: Column) {
+  const menu: Menu = get(menuStored)
+  group.cols = group.cols.filter((c) => c !== col)
+  menuStored.set(menu)
+}
+
+export function addItem(group: Group) {
+  const menu: Menu = get(menuStored)
   group.items.push({
     uuid: crypto.randomUUID(),
     value: airline.airplane().name,
@@ -153,15 +188,15 @@ export function addItem(menu: Menu, group: Group) {
       { uuid: crypto.randomUUID(), value: airline.seat() },
     ],
   })
-  eventBus.trigger("render", {})
+  menuStored.set(menu)
 }
 
 export async function moveItem(
-  menu: Menu,
+  group: Group,
   item: Item,
   direction: "up" | "down",
 ) {
-  const group = menu.json.groups.find((group) => group.items.includes(item))
+  const menu: Menu = get(menuStored)
 
   if (!group) return
 
@@ -176,8 +211,7 @@ export async function moveItem(
   const temp = group.items[index]
   group.items[index] = group.items[newIndex]
   group.items[newIndex] = temp
-
-  eventBus.trigger("render", {})
+  menuStored.set(menu)
 
   if (item.uuid) {
     const target = document.getElementById(item.uuid)
@@ -188,29 +222,93 @@ export async function moveItem(
   }
 }
 
-export function removeItem(menu: Menu, item: Item) {
-  const group = menu.json.groups.find((group) => group.items.includes(item))
+export function removeItem(group: Group, item: Item) {
+  const menu: Menu = get(menuStored)
 
   if (!group) return
 
   group.items = group.items.filter((i) => i !== item)
 
-  eventBus.trigger("render", {})
+  menuStored.set(menu)
 }
 
-export function addFooter(menu: Menu) {
+export function addDescription(item: Item) {
+  const menu: Menu = get(menuStored)
+  item.descriptions.push({
+    uuid: crypto.randomUUID(),
+    value: getFlightDescriotion(),
+  })
+  menuStored.set(menu)
+}
+
+export function moveDescription(
+  item: Item,
+  description: Description,
+  direction: "up" | "down",
+) {
+  const menu: Menu = get(menuStored)
+  const index = item.descriptions.indexOf(description)
+  if (
+    (direction === "up" && index === 0) ||
+    (direction === "down" && index === item.descriptions.length - 1)
+  ) {
+    return
+  }
+  const newIndex = direction === "up" ? index - 1 : index + 1
+  const temp = item.descriptions[index]
+  item.descriptions[index] = item.descriptions[newIndex]
+  item.descriptions[newIndex] = temp
+  menuStored.set(menu)
+}
+
+export function removeDescription(item: Item, description: Description) {
+  const menu: Menu = get(menuStored)
+  item.descriptions = item.descriptions.filter((d) => d !== description)
+  menuStored.set(menu)
+}
+
+export function addPrice(item: Item) {
+  const menu: Menu = get(menuStored)
+  item.prices.push({
+    uuid: crypto.randomUUID(),
+    value: airline.flightNumber(),
+  })
+  menuStored.set(menu)
+}
+
+export function movePrice(item: Item, price: Price, direction: "up" | "down") {
+  const menu: Menu = get(menuStored)
+  const index = item.prices.indexOf(price)
+  if (
+    (direction === "up" && index === 0) ||
+    (direction === "down" && index === item.prices.length - 1)
+  ) {
+    return
+  }
+  const newIndex = direction === "up" ? index - 1 : index + 1
+  const temp = item.prices[index]
+  item.prices[index] = item.prices[newIndex]
+  item.prices[newIndex] = temp
+  menuStored.set(menu)
+}
+
+export function removePrice(item: Item, price: Price) {
+  const menu: Menu = get(menuStored)
+  item.prices = item.prices.filter((p) => p !== price)
+  menuStored.set(menu)
+}
+
+export function addFooter() {
+  const menu: Menu = get(menuStored)
   menu.json.footers.push({
     uuid: crypto.randomUUID(),
     value: faker.commerce.productDescription(),
   })
-  eventBus.trigger("render", {})
+  menuStored.set(menu)
 }
 
-export function moveFooter(
-  menu: Menu,
-  footer: Footer,
-  direction: "up" | "down",
-) {
+export function moveFooter(footer: Footer, direction: "up" | "down") {
+  const menu: Menu = get(menuStored)
   const index = menu.json.footers.indexOf(footer)
   if (
     (direction === "up" && index === 0) ||
@@ -222,10 +320,13 @@ export function moveFooter(
   const temp = menu.json.footers[index]
   menu.json.footers[index] = menu.json.footers[newIndex]
   menu.json.footers[newIndex] = temp
+  menuStored.set(menu)
 }
 
-export function removeFooter(menu: Menu, footer: Footer) {
+export function removeFooter(footer: Footer) {
+  const menu: Menu = get(menuStored)
   menu.json.footers = menu.json.footers.filter((f) => f !== footer)
+  menuStored.set(menu)
 }
 
 function getFlightDescriotion() {
@@ -233,7 +334,8 @@ function getFlightDescriotion() {
   return `[${airline.aircraftType()}] ${airline.flightNumber()}, ${airline.airport().name}`
 }
 
-export async function save(menu: Menu, menuBackedUp: Menu) {
+export async function save() {
+  const menu = get(menuStored)
   if (!confirm("Are you sure you want to save?")) return
 
   const password = prompt("Enter password")
@@ -255,6 +357,83 @@ export async function save(menu: Menu, menuBackedUp: Menu) {
 
   if (response.ok) {
     alert("Saved")
-    menuBackedUp = JSON.parse(JSON.stringify(menu))
+    menuBackedUpStored.set(JSON.parse(JSON.stringify(menu)))
+  }
+}
+
+export async function rollback() {
+  if (!confirm("Are you sure you want to rollback?")) return
+
+  menuStored.set(JSON.parse(JSON.stringify(get(menuBackedUpStored))))
+  eventBus.trigger("render", {})
+}
+
+export async function login() {
+  const response = await fetch("http://localhost:4321/menus", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: get(menuStored).name,
+      password: prompt("Enter your password"),
+    }),
+  })
+
+  if (response.ok) {
+    // verified
+    isAdminStored.set(true)
+  } else {
+    // invalid password
+    alert("Failed to login")
+  }
+}
+
+export function logout() {
+  isAdminStored.set(false)
+}
+
+export async function createNewMenu() {
+  const name = prompt("Enter the name of the new menu")
+  if (name === null) {
+    return
+  }
+  const exist = await fetch(`http://localhost:4321/menus`, {
+    method: "POST",
+    body: JSON.stringify({ name }),
+  })
+  if (!exist.ok) {
+    return alert("Name already exists")
+  }
+  const email = prompt("Enter your email")
+  if (email === null) {
+    return
+  }
+  const password = prompt("Enter your password")
+  if (password === null) {
+    return
+  }
+  const confirmPassword = prompt("Confirm your password")
+  if (confirmPassword !== password) {
+    return alert("Passwords do not match")
+  }
+
+  const response = await fetch("http://localhost:4321/menus", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name,
+      email,
+      password,
+    }),
+  })
+
+  if (response.ok) {
+    alert("New menu created")
+    window.location.replace(`/${name}`)
+  } else {
+    alert("Failed to create new menu")
   }
 }
