@@ -52,10 +52,8 @@
     <div>
       <button on:click={createNewMenu}>Create new menu</button>
     </div>
-    <div>Made with Menupi</div>
-    <div>
-      <p>MIT License © 2023 Misa Lili</p>
-    </div>
+    <div>Created by Menupi</div>
+    <div>MIT License © 2023 Misa Lili</div>
   </section>
 </main>
 
@@ -79,5 +77,6 @@
     @apply bg-stone-600 text-white p-0 pr-1 mb-0.5;
     @apply hover:bg-stone-700;
     @apply text-stone-300 font-thin italic font-mono;
+    @apply flex;
   }
 </style>

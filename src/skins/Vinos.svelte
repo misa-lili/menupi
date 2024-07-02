@@ -16,20 +16,6 @@
     removeFooter,
     save,
   } from "../libs/utils"
-  import { onDestroy, onMount, tick } from "svelte"
-
-  onDestroy(() => {
-    eventBus.subscribe(() => {})
-  })
-  const unsubscribe = eventBus.subscribe(({ event }) => {
-    if (event === "render") {
-      $menuStored = $menuStored
-    }
-  })
-
-  onDestroy(() => {
-    if (unsubscribe) unsubscribe()
-  })
 </script>
 
 <section id="skin">
@@ -65,7 +51,7 @@
       {/if}
     {/each}
     {#if $isAdminStored && $menuStored.json.titles.length < 3}
-      <button on:click={() => addTitle($menuStored)}> Add New Title</button>
+      <button on:click={() => addTitle()}> Add New Title</button>
     {/if}
   </section>
 
@@ -74,15 +60,9 @@
     {#each $menuStored.json.headers || [] as header, idx (header.uuid)}
       {#if $isAdminStored}
         <div class="editor">
-          <button on:click={() => moveHeader($menuStored, header, "up")}>
-            Up
-          </button>
-          <button on:click={() => moveHeader($menuStored, header, "down")}>
-            Down
-          </button>
-          <button on:click={() => removeHeader($menuStored, header)}>
-            Remove Header
-          </button>
+          <button on:click={() => moveHeader(header, "up")}> Up </button>
+          <button on:click={() => moveHeader(header, "down")}> Down </button>
+          <button on:click={() => removeHeader(header)}> Remove Header </button>
         </div>
       {/if}
       <p
@@ -94,42 +74,16 @@
       </p>
     {/each}
     {#if $isAdminStored}
-      <button on:click={() => addHeader($menuStored)}> Add New Header</button>
+      <button on:click={() => addHeader()}> Add New Header</button>
     {/if}
   </section>
 
   {#each $menuStored.json.groups || [] as group, idx (group.uuid)}
     {#if $isAdminStored}
       <div class="group-editor">
-        <button
-          on:click={async () => {
-            moveGroup($menuStored, group, "up")
-            await tick()
-            document
-              .getElementById(group.uuid)
-              .scrollIntoView({ behavior: "smooth", block: "center" })
-            await tick()
-            document.getElementById(group.uuid).focus({ preventScroll: true })
-          }}
-        >
-          Up
-        </button>
-        <button
-          on:click={async (target) => {
-            moveGroup($menuStored, group, "down")
-            await tick()
-            document
-              .getElementById(group.uuid)
-              .scrollIntoView({ behavior: "smooth", block: "center" })
-            await tick()
-            document.getElementById(group.uuid).focus({ preventScroll: true })
-          }}
-        >
-          Down
-        </button>
-        <button on:click={() => removeGroup($menuStored, group)}>
-          Remove Group
-        </button>
+        <button on:click={() => moveGroup(group, "up")}> Up </button>
+        <button on:click={() => moveGroup(group, "down")}> Down </button>
+        <button on:click={() => removeGroup(group)}> Remove Group </button>
       </div>
     {/if}
     <div class="group">
@@ -170,13 +124,11 @@
         {#each group.items || [] as item (item.uuid)}
           {#if $isAdminStored}
             <div class="item-editor">
-              <button on:click={() => moveItem($menuStored, item, "up")}>
-                Up
-              </button>
-              <button on:click={() => moveItem($menuStored, item, "down")}>
+              <button on:click={() => moveItem(group, item, "up")}> Up </button>
+              <button on:click={() => moveItem(group, item, "down")}>
                 Down
               </button>
-              <button on:click={() => removeItem($menuStored, item)}>
+              <button on:click={() => removeItem(group, item)}>
                 Remove Item
               </button>
             </div>
@@ -218,14 +170,12 @@
         {/each}
       </ul>
       {#if $isAdminStored}
-        <button on:click={() => addItem($menuStored, group)}>
-          Add New Item
-        </button>
+        <button on:click={() => addItem(group)}> Add New Item </button>
       {/if}
     </div>
   {/each}
   {#if $isAdminStored}
-    <button on:click={() => addGroup($menuStored)}> Add New Group </button>
+    <button on:click={() => addGroup()}> Add New Group </button>
   {/if}
 
   <!-- Footer -->
@@ -233,15 +183,9 @@
     {#each $menuStored.json.footers || [] as footer, idx (footer.uuid)}
       {#if $isAdminStored}
         <div class="footer-editor">
-          <button on:click={() => moveFooter($menuStored, footer, "up")}>
-            Up
-          </button>
-          <button on:click={() => moveFooter($menuStored, footer, "down")}>
-            Down
-          </button>
-          <button on:click={() => removeFooter($menuStored, footer)}>
-            Remove Footer
-          </button>
+          <button on:click={() => moveFooter(footer, "up")}> Up </button>
+          <button on:click={() => moveFooter(footer, "down")}> Down </button>
+          <button on:click={() => removeFooter(footer)}> Remove Footer </button>
         </div>
       {/if}
       <p
@@ -254,7 +198,7 @@
       </p>
     {/each}
     {#if $isAdminStored}
-      <button on:click={() => addFooter($menuStored)}> Add New Footer</button>
+      <button on:click={() => addFooter()}> Add New Footer</button>
     {/if}
   </section>
 </section>

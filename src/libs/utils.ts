@@ -10,11 +10,11 @@ import { tick } from "svelte"
 
 const airline = faker.airline
 
-export function addTitle() {
+export function addTitle(value = faker.commerce.productName()) {
   const menu: Menu = get(menuStored)
   menu.json.titles.push({
     uuid: crypto.randomUUID(),
-    value: faker.commerce.productName(),
+    value,
   })
   menuStored.set(menu)
 }
@@ -39,6 +39,49 @@ export function removeTitle(title: Title) {
   const menu: Menu = get(menuStored)
   menu.json.titles = menu.json.titles.filter((t) => t !== title)
   menuStored.set(menu)
+}
+
+export async function uploadImageTitle(title: Title) {
+  let inputFileElement = document.getElementById("file")
+  if (!inputFileElement) {
+    inputFileElement = document.createElement("input")
+    document.body.appendChild(inputFileElement)
+    console.log("input file element created")
+    inputFileElement.setAttribute("type", "file")
+    inputFileElement.setAttribute("id", "file")
+    inputFileElement.classList.add("hidden")
+    inputFileElement.setAttribute(
+      "accept",
+      "image/png, image/jpeg, image/svg+xml",
+    )
+    inputFileElement.addEventListener("change", async (e: Event) => {
+      const target = e.target as HTMLInputElement
+      if (target.files && target.files.length > 0) {
+        const file = target.files[0]
+        const formData = new FormData()
+        formData.append("file", file)
+
+        const response = await fetch("http://localhost:4321/storage", {
+          method: "POST",
+          body: formData,
+        })
+
+        if (response.ok) {
+          const { path } = await response.json()
+          title.src = path
+          menuStored.update((menu) => menu)
+        }
+      }
+    })
+  } else {
+    console.log("input file element found")
+  }
+  inputFileElement.click()
+}
+
+export function removeImageTitle(title: Title) {
+  title.src = undefined
+  menuStored.update((menu) => menu)
 }
 
 export function addHeader() {
@@ -110,7 +153,7 @@ export function addGroup() {
   menuStored.set(menu)
 }
 
-export function moveGroup(group: Group, direction: "up" | "down") {
+export async function moveGroup(group: Group, direction: "up" | "down") {
   const menu: Menu = get(menuStored)
   const index = menu.json.groups.indexOf(group)
   if (
@@ -124,6 +167,12 @@ export function moveGroup(group: Group, direction: "up" | "down") {
   menu.json.groups[index] = menu.json.groups[newIndex]
   menu.json.groups[newIndex] = temp
   menuStored.set(menu)
+
+  if (group.uuid) {
+    await tick()
+    const target = document.getElementById(group.uuid)
+    target?.scrollIntoView({ behavior: "smooth", block: "center" })
+  }
 }
 
 export function removeGroup(group: Group) {
@@ -132,7 +181,7 @@ export function removeGroup(group: Group) {
   menuStored.set(menu)
 }
 
-export function addColumn(group: Group) {
+export function addColumn(group: Group, value = faker.commerce.product()) {
   const menu: Menu = get(menuStored)
 
   menu.json.groups = menu.json.groups.map((g) => {
@@ -140,7 +189,7 @@ export function addColumn(group: Group) {
       if (g.cols === undefined) g.cols = []
       g.cols.push({
         uuid: crypto.randomUUID(),
-        value: faker.commerce.product(),
+        value,
       })
     }
     return g
@@ -214,11 +263,9 @@ export async function moveItem(
   menuStored.set(menu)
 
   if (item.uuid) {
+    await tick()
     const target = document.getElementById(item.uuid)
-    await tick()
     target?.scrollIntoView({ behavior: "smooth", block: "center" })
-    await tick()
-    target?.focus()
   }
 }
 
@@ -267,11 +314,11 @@ export function removeDescription(item: Item, description: Description) {
   menuStored.set(menu)
 }
 
-export function addPrice(item: Item) {
+export function addPrice(item: Item, value = airline.flightNumber()) {
   const menu: Menu = get(menuStored)
   item.prices.push({
     uuid: crypto.randomUUID(),
-    value: airline.flightNumber(),
+    value,
   })
   menuStored.set(menu)
 }

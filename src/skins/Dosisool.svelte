@@ -1,49 +1,21 @@
 <script lang="ts">
   import { menuStored, isAdminStored } from "../store"
   import * as utils from "../libs/utils"
+  import { onMount } from "svelte"
+  import TitleToolbar from "../components/TitleToolbar.svelte"
+  import TitleValue from "../components/TitleValue.svelte"
+  import TitleAdd from "../components/TitleAdd.svelte"
 </script>
 
 <section class="skin">
   <section class="titles">
     {#each $menuStored.json.titles || [] as title, idx (title.uuid)}
       <div id={title.uuid} class="title">
-        <button
-          class="title-move-up"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.moveTitle(title, "up")}
-        >
-          Up
-        </button>
-        <button
-          class="title-move-down"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.moveTitle(title, "down")}
-        >
-          Down
-        </button>
-        <button
-          class="title-remove"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.removeTitle(title)}
-        >
-          Remove Title
-        </button>
-        <div
-          class="title-value"
-          contenteditable={$isAdminStored}
-          on:input={(e) => (title.value = e.target.textContent)}
-        >
-          {title.value}
-        </div>
+        <TitleToolbar {title} />
+        <TitleValue {title} />
       </div>
     {/each}
-    <button
-      class="titles-add"
-      class:hidden={!$isAdminStored}
-      on:click={utils.addTitle}
-    >
-      Add Title
-    </button>
+    <TitleAdd />
   </section>
 
   <section class="headers">
@@ -82,7 +54,7 @@
     <button
       class="headers-add"
       class:hidden={!$isAdminStored}
-      on:click={utils.addHeader}
+      on:click={() => utils.addHeader()}
     >
       Add Header
     </button>
@@ -112,53 +84,29 @@
         >
           Remove Group
         </button>
-        <div
-          class="group-value"
-          contenteditable={$isAdminStored}
-          on:input={(e) => (group.value = e.target.textContent)}
-        >
-          {group.value}
-        </div>
-        <div class="cols">
-          {#each group.cols || [] as col, idx (col.uuid)}
-            <div id={col.uuid} class="col">
-              <button
-                class="col-move-up"
-                class:hidden={!$isAdminStored}
-                on:click={() => utils.moveColumn(group, col, "up")}
-              >
-                Up
-              </button>
-              <button
-                class="col-move-down"
-                class:hidden={!$isAdminStored}
-                on:click={() => utils.moveColumn(group, col, "down")}
-              >
-                Down
-              </button>
-              <button
-                class="col-remove"
-                class:hidden={!$isAdminStored}
-                on:click={() => utils.removeColumn(group, col)}
-              >
-                Remove Col
-              </button>
-              <div
-                class="col-value"
-                contenteditable={$isAdminStored}
-                on:input={(e) => (col.value = e.target.textContent)}
-              >
-                {col.value}
-              </div>
-            </div>
-          {/each}
-          <button
-            class="cols-add"
-            class:hidden={!$isAdminStored}
-            on:click={() => utils.addColumn(group)}
+        <div class="grid grid-cols-12 w-full border-t border-orange-300/10">
+          <div
+            class="group-value col-span-8"
+            contenteditable={$isAdminStored}
+            on:input={(e) => (group.value = e.target.textContent)}
           >
-            Add Column
-          </button>
+            {group.value}
+          </div>
+          <div class="cols col-span-4">
+            <div class="grid grid-cols-12 w-full">
+              {#each group.cols || [] as col, idx (col.uuid)}
+                <div id={col.uuid} class="col col-span-6">
+                  <div
+                    class="col-value"
+                    contenteditable={$isAdminStored}
+                    on:input={(e) => (col.value = e.target.textContent)}
+                  >
+                    {col.value}
+                  </div>
+                </div>
+              {/each}
+            </div>
+          </div>
         </div>
         <div class="items">
           {#each group.items || [] as item, idx (item.uuid)}
@@ -184,40 +132,35 @@
               >
                 Remove Item
               </button>
-              <div
-                class="item-value"
-                contenteditable={$isAdminStored}
-                on:input={(e) => (item.value = e.target.textContent)}
-              >
-                {item.value}
+
+              <div class="grid grid-cols-12">
+                <div
+                  class="item-value col-span-8"
+                  contenteditable={$isAdminStored}
+                  on:input={(e) => (item.value = e.target.textContent)}
+                >
+                  {item.value}
+                </div>
+                <div class="prices col-span-4">
+                  <div class="grid grid-cols-12">
+                    {#each item.prices || [] as price, idx (price.uuid)}
+                      <div id={price.uuid} class="price col-span-6">
+                        <div
+                          class="price-value"
+                          contenteditable={$isAdminStored}
+                          on:input={(e) => (price.value = e.target.textContent)}
+                        >
+                          {price.value}
+                        </div>
+                      </div>
+                    {/each}
+                  </div>
+                </div>
               </div>
+
               <div class="descriptions">
                 {#each item.descriptions || [] as description, idx (description.uuid)}
                   <div id={description.uuid} class="description">
-                    <button
-                      class="description-move-up"
-                      class:hidden={!$isAdminStored}
-                      on:click={() =>
-                        utils.moveDescription(item, description, "up")}
-                    >
-                      Up
-                    </button>
-                    <button
-                      class="description-move-down"
-                      class:hidden={!$isAdminStored}
-                      on:click={() =>
-                        utils.moveDescription(item, description, "down")}
-                    >
-                      Down
-                    </button>
-                    <button
-                      class="description-remove"
-                      class:hidden={!$isAdminStored}
-                      on:click={() =>
-                        utils.removeDescription(item, description)}
-                    >
-                      Remove Description
-                    </button>
                     <div
                       class="description-value"
                       contenteditable={$isAdminStored}
@@ -228,54 +171,6 @@
                     </div>
                   </div>
                 {/each}
-                <button
-                  class="descriptions-add"
-                  class:hidden={!$isAdminStored}
-                  on:click={() => utils.addDescription(item)}
-                >
-                  Add Description
-                </button>
-              </div>
-              <div class="prices">
-                {#each item.prices || [] as price, idx (price.uuid)}
-                  <div id={price.uuid} class="price">
-                    <button
-                      class="price-move-up"
-                      class:hidden={!$isAdminStored}
-                      on:click={() => utils.movePrice(item, price, "up")}
-                    >
-                      Up
-                    </button>
-                    <button
-                      class="price-move-down"
-                      class:hidden={!$isAdminStored}
-                      on:click={() => utils.movePrice(item, price, "down")}
-                    >
-                      Down
-                    </button>
-                    <button
-                      class="price-remove"
-                      class:hidden={!$isAdminStored}
-                      on:click={() => utils.removePrice(item, price)}
-                    >
-                      Remove Price
-                    </button>
-                    <div
-                      class="price-value"
-                      contenteditable={$isAdminStored}
-                      on:input={(e) => (price.value = e.target.textContent)}
-                    >
-                      {price.value}
-                    </div>
-                  </div>
-                {/each}
-                <button
-                  class="prices-add"
-                  class:hidden={!$isAdminStored}
-                  on:click={() => utils.addPrice(item)}
-                >
-                  Add Price
-                </button>
               </div>
             </div>
           {/each}
@@ -292,7 +187,7 @@
     <button
       class="groups-add"
       class:hidden={!$isAdminStored}
-      on:click={utils.addGroup}
+      on:click={() => utils.addGroup()}
     >
       Add Group
     </button>
@@ -342,10 +237,15 @@
 </section>
 
 <style lang="postcss">
+  /* Noto Sans KR */
+  @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap");
+  /* Noto Serif KR */
+  @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&family=Noto+Serif+KR:wght@200..900&display=swap");
+
   .skin {
     @apply container m-auto;
 
-    @apply w-full p-12;
+    @apply w-full px-6 py-12;
     @apply lg:max-w-screen-md lg:p-16;
 
     @apply text-base text-stone-800;
@@ -357,41 +257,65 @@
       rgb(47, 55, 46),
       rgb(37, 45, 36)
     );
+
+    font-family: "Noto Serif KR", serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
   }
 
   .titles {
+    @apply mb-12;
   }
   .title {
   }
   .title-value {
+    @apply text-6xl;
+    font-family: "Noto Serif KR", serif;
   }
 
   .headers {
+    @apply mb-12;
   }
   .header {
+    @apply text-sm;
+    @apply pr-1;
   }
   .header-value {
+    @apply font-thin;
+    font-family: "Noto Serif KR", serif;
   }
 
   .groups {
+    @apply mb-12;
   }
   .group {
+    @apply mb-12;
   }
   .group-value {
+    @apply tracking-wider;
+    @apply text-2xl font-medium my-6;
   }
 
   .cols {
+    @apply flex gap-4;
   }
   .col {
+    @apply items-center justify-center self-center text-center;
   }
   .col-value {
+    font-family: "Noto Serif KR", serif;
+    font-weight: 100;
+    font-style: italic;
   }
 
   .items {
   }
   .item {
+    @apply mb-6;
   }
   .item-value {
+    @apply font-medium;
   }
 
   .descriptions {
@@ -399,19 +323,29 @@
   .description {
   }
   .description-value {
+    @apply font-thin text-xs;
+    @apply mt-1 pr-1;
   }
 
   .prices {
   }
   .price {
+    @apply items-center justify-center self-center text-center;
   }
   .price-value {
+    font-family: "Noto Serif KR", serif;
+    font-weight: 100;
+    font-style: italic;
   }
 
   .footers {
+    @apply border-t border-orange-300/10 pt-10;
   }
   .footer {
+    @apply pr-2;
   }
   .footer-value {
+    @apply text-sm;
+    @apply font-light;
   }
 </style>

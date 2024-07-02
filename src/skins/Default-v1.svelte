@@ -1,49 +1,20 @@
 <script lang="ts">
   import { menuStored, isAdminStored } from "../store"
   import * as utils from "../libs/utils"
+  import TitleToolbar from "../components/TitleToolbar.svelte"
+  import TitleAdd from "../components/TitleAdd.svelte"
+  import TitleValue from "../components/TitleValue.svelte"
 </script>
 
 <section class="skin">
   <section class="titles">
     {#each $menuStored.json.titles || [] as title, idx (title.uuid)}
       <div id={title.uuid} class="title">
-        <button
-          class="title-move-up"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.moveTitle(title, "up")}
-        >
-          Up
-        </button>
-        <button
-          class="title-move-down"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.moveTitle(title, "down")}
-        >
-          Down
-        </button>
-        <button
-          class="title-remove"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.removeTitle(title)}
-        >
-          Remove Title
-        </button>
-        <div
-          class="title-value"
-          contenteditable={$isAdminStored}
-          on:input={(e) => (title.value = e.target.textContent)}
-        >
-          {title.value}
-        </div>
+        <TitleToolbar {title} />
+        <TitleValue {title} />
       </div>
     {/each}
-    <button
-      class="titles-add"
-      class:hidden={!$isAdminStored}
-      on:click={utils.addTitle}
-    >
-      Add Title
-    </button>
+    <TitleAdd />
   </section>
 
   <section class="headers">
@@ -82,7 +53,7 @@
     <button
       class="headers-add"
       class:hidden={!$isAdminStored}
-      on:click={utils.addHeader}
+      on:click={() => utils.addHeader()}
     >
       Add Header
     </button>
@@ -292,7 +263,7 @@
     <button
       class="groups-add"
       class:hidden={!$isAdminStored}
-      on:click={utils.addGroup}
+      on:click={() => utils.addGroup()}
     >
       Add Group
     </button>
@@ -334,7 +305,7 @@
     <button
       class="footers-add"
       class:hidden={!$isAdminStored}
-      on:click={utils.addFooter}
+      on:click={() => utils.addFooter()}
     >
       Add Footer
     </button>
