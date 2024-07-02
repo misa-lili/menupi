@@ -6,7 +6,7 @@
 </script>
 
 <button
-  class="cols-add"
+  class="items-add"
   class:hidden={!$isAdminStored}
   aria-label="item add"
   on:click={() => utils.addItem(group)}

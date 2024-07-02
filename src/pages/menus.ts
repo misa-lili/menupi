@@ -169,9 +169,9 @@ export const PATCH: APIRoute = async ({ params, request }) => {
       body.newJson.groups = body.newJson.groups.map((group) => ({
         ...group,
         ...(!group.uuid && { uuid: crypto.randomUUID() }),
-        cols: group.cols.map((col) => ({
-          ...col,
-          ...(!col.uuid && { uuid: crypto.randomUUID() }),
+        columns: group.columns.map((column) => ({
+          ...column,
+          ...(!column.uuid && { uuid: crypto.randomUUID() }),
         })),
         items: group.items.map((item) => ({
           ...item,

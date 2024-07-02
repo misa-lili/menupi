@@ -133,7 +133,7 @@ export function addGroup() {
   menu.json.groups.push({
     uuid: crypto.randomUUID(),
     value: airline.airline().name,
-    cols: [
+    columns: [
       {
         uuid: crypto.randomUUID(),
         value: "Flight number",
@@ -199,8 +199,8 @@ export function addColumn(group: Group, value = faker.commerce.product()) {
 
   menu.json.groups = menu.json.groups.map((g) => {
     if (g === group) {
-      if (g.cols === undefined) g.cols = []
-      g.cols.push({
+      if (g.columns === undefined) g.columns = []
+      g.columns.push({
         uuid: crypto.randomUUID(),
         value,
       })
@@ -213,27 +213,27 @@ export function addColumn(group: Group, value = faker.commerce.product()) {
 
 export function moveColumn(
   group: Group,
-  col: Column,
+  column: Column,
   direction: "up" | "down",
 ) {
   const menu: Menu = get(menuStored)
-  const index = group.cols.indexOf(col)
+  const index = group.columns.indexOf(column)
   if (
     (direction === "up" && index === 0) ||
-    (direction === "down" && index === group.cols.length - 1)
+    (direction === "down" && index === group.columns.length - 1)
   ) {
     return
   }
   const newIndex = direction === "up" ? index - 1 : index + 1
-  const temp = group.cols[index]
-  group.cols[index] = group.cols[newIndex]
-  group.cols[newIndex] = temp
+  const temp = group.columns[index]
+  group.columns[index] = group.columns[newIndex]
+  group.columns[newIndex] = temp
   menuStored.set(menu)
 }
 
-export function removeColumn(group: Group, col: Column) {
+export function removeColumn(group: Group, column: Column) {
   const menu: Menu = get(menuStored)
-  group.cols = group.cols.filter((c) => c !== col)
+  group.columns = group.columns.filter((c) => c !== column)
   menuStored.set(menu)
 }
 

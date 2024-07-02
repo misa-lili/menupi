@@ -97,24 +97,24 @@
           {group.value}
         </div>
 
-        {#each group.cols || [] as col, idx (col.uuid)}
+        {#each group.columns || [] as column, idx (column.uuid)}
           {#if idx === 0}
             <div
-              id={col.uuid}
+              id={column.uuid}
               class="column center"
               contenteditable={$isAdminStored}
-              on:input={(e) => (col.value = e.target.textContent)}
+              on:input={(e) => (column.value = e.target.textContent)}
             >
-              {col.value}
+              {column.value}
             </div>
           {:else if idx === 1}
             <div
-              id={col.uuid}
+              id={column.uuid}
               class="column center"
               contenteditable={$isAdminStored}
-              on:input={(e) => (col.value = e.target.textContent)}
+              on:input={(e) => (column.value = e.target.textContent)}
             >
-              {col.value}
+              {column.value}
             </div>
           {/if}
         {/each}

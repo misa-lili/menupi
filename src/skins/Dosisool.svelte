@@ -5,6 +5,21 @@
   import TitleToolbar from "../components/TitleToolbar.svelte"
   import TitleValue from "../components/TitleValue.svelte"
   import TitleAdd from "../components/TitleAdd.svelte"
+  import HeaderToolbar from "../components/HeaderToolbar.svelte"
+  import HeaderValue from "../components/HeaderValue.svelte"
+  import HeaderAdd from "../components/HeaderAdd.svelte"
+  import GroupToolbar from "../components/GroupToolbar.svelte"
+  import GroupValue from "../components/GroupValue.svelte"
+  import ColumnValue from "../components/ColumnValue.svelte"
+  import ItemToolbar from "../components/ItemToolbar.svelte"
+  import ItemValue from "../components/ItemValue.svelte"
+  import PriceValue from "../components/PriceValue.svelte"
+  import ItemAdd from "../components/ItemAdd.svelte"
+  import GroupAdd from "../components/GroupAdd.svelte"
+  import FooterToolbar from "../components/FooterToolbar.svelte"
+  import FooterValue from "../components/FooterValue.svelte"
+  import FooterAdd from "../components/FooterAdd.svelte"
+  import DescriptionValue from "../components/DescriptionValue.svelte"
 </script>
 
 <section class="skin">
@@ -12,7 +27,9 @@
     {#each $menuStored.json.titles || [] as title, idx (title.uuid)}
       <div id={title.uuid} class="title">
         <TitleToolbar {title} />
-        <TitleValue {title} />
+        <div class="title-value">
+          <TitleValue {title} />
+        </div>
       </div>
     {/each}
     <TitleAdd />
@@ -21,88 +38,28 @@
   <section class="headers">
     {#each $menuStored.json.headers || [] as header, idx (header.uuid)}
       <div id={header.uuid} class="header">
-        <button
-          class="header-move-up"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.moveHeader(header, "up")}
-        >
-          Up
-        </button>
-        <button
-          class="header-move-down"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.moveHeader(header, "down")}
-        >
-          Down
-        </button>
-        <button
-          class="header-remove"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.removeHeader(header)}
-        >
-          Remove Header
-        </button>
-        <div
-          class="header-value"
-          contenteditable={$isAdminStored}
-          on:input={(e) => (header.value = e.target.textContent)}
-        >
-          {header.value}
+        <HeaderToolbar {header} />
+        <div class="header-value">
+          <HeaderValue {header} />
         </div>
       </div>
     {/each}
-    <button
-      class="headers-add"
-      class:hidden={!$isAdminStored}
-      on:click={() => utils.addHeader()}
-    >
-      Add Header
-    </button>
+    <HeaderAdd />
   </section>
 
   <section class="groups">
     {#each $menuStored.json.groups || [] as group, idx (group.uuid)}
       <div id={group.uuid} class="group">
-        <button
-          class="group-move-up"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.moveGroup(group, "up")}
-        >
-          Up
-        </button>
-        <button
-          class="group-move-down"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.moveGroup(group, "down")}
-        >
-          Down
-        </button>
-        <button
-          class="group-remove"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.removeGroup(group)}
-        >
-          Remove Group
-        </button>
+        <GroupToolbar {group} />
         <div class="grid grid-cols-12 w-full border-t border-orange-300/10">
-          <div
-            class="group-value col-span-8"
-            contenteditable={$isAdminStored}
-            on:input={(e) => (group.value = e.target.textContent)}
-          >
-            {group.value}
+          <div class="group-value col-span-8">
+            <GroupValue {group} />
           </div>
-          <div class="cols col-span-4">
+          <div class="columns col-span-4">
             <div class="grid grid-cols-12 w-full">
-              {#each group.cols || [] as col, idx (col.uuid)}
-                <div id={col.uuid} class="col col-span-6">
-                  <div
-                    class="col-value"
-                    contenteditable={$isAdminStored}
-                    on:input={(e) => (col.value = e.target.textContent)}
-                  >
-                    {col.value}
-                  </div>
+              {#each group.columns || [] as column, idx (column.uuid)}
+                <div id={column.uuid} class="column column-value col-span-6">
+                  <ColumnValue {column} />
                 </div>
               {/each}
             </div>
@@ -111,128 +68,50 @@
         <div class="items">
           {#each group.items || [] as item, idx (item.uuid)}
             <div id={item.uuid} class="item">
-              <button
-                class="item-move-up"
-                class:hidden={!$isAdminStored}
-                on:click={() => utils.moveItem(group, item, "up")}
-              >
-                Up
-              </button>
-              <button
-                class="item-move-down"
-                class:hidden={!$isAdminStored}
-                on:click={() => utils.moveItem(group, item, "down")}
-              >
-                Down
-              </button>
-              <button
-                class="item-remove"
-                class:hidden={!$isAdminStored}
-                on:click={() => utils.removeItem(group, item)}
-              >
-                Remove Item
-              </button>
-
+              <ItemToolbar {group} {item} />
               <div class="grid grid-cols-12">
-                <div
-                  class="item-value col-span-8"
-                  contenteditable={$isAdminStored}
-                  on:input={(e) => (item.value = e.target.textContent)}
-                >
-                  {item.value}
+                <div class="item-value col-span-8">
+                  <ItemValue {item} />
                 </div>
                 <div class="prices col-span-4">
                   <div class="grid grid-cols-12">
                     {#each item.prices || [] as price, idx (price.uuid)}
-                      <div id={price.uuid} class="price col-span-6">
-                        <div
-                          class="price-value"
-                          contenteditable={$isAdminStored}
-                          on:input={(e) => (price.value = e.target.textContent)}
-                        >
-                          {price.value}
-                        </div>
+                      <div id={price.uuid} class="price price-value col-span-6">
+                        <PriceValue {price} />
                       </div>
                     {/each}
                   </div>
                 </div>
               </div>
-
               <div class="descriptions">
                 {#each item.descriptions || [] as description, idx (description.uuid)}
-                  <div id={description.uuid} class="description">
-                    <div
-                      class="description-value"
-                      contenteditable={$isAdminStored}
-                      on:input={(e) =>
-                        (description.value = e.target.textContent)}
-                    >
-                      {description.value}
-                    </div>
+                  <div
+                    id={description.uuid}
+                    class="description description-value"
+                  >
+                    <DescriptionValue {description} />
                   </div>
                 {/each}
               </div>
             </div>
           {/each}
-          <button
-            class="items-add"
-            class:hidden={!$isAdminStored}
-            on:click={() => utils.addItem(group)}
-          >
-            Add Item
-          </button>
+          <ItemAdd {group} />
         </div>
       </div>
     {/each}
-    <button
-      class="groups-add"
-      class:hidden={!$isAdminStored}
-      on:click={() => utils.addGroup()}
-    >
-      Add Group
-    </button>
+    <GroupAdd />
   </section>
 
   <section class="footers">
     {#each $menuStored.json.footers || [] as footer, idx (footer.uuid)}
       <div id={footer.uuid} class="footer">
-        <button
-          class="footer-move-up"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.moveFooter(footer, "up")}
-        >
-          Up
-        </button>
-        <button
-          class="footer-move-down"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.moveFooter(footer, "down")}
-        >
-          Down
-        </button>
-        <button
-          class="footer-remove"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.removeFooter(footer)}
-        >
-          Remove Footer
-        </button>
-        <div
-          class="footer-value"
-          contenteditable={$isAdminStored}
-          on:input={(e) => (footer.value = e.target.textContent)}
-        >
-          {footer.value}
+        <FooterToolbar {footer} />
+        <div class="footer-value">
+          <FooterValue {footer} />
         </div>
       </div>
     {/each}
-    <button
-      class="footers-add"
-      class:hidden={!$isAdminStored}
-      on:click={utils.addFooter}
-    >
-      Add Footer
-    </button>
+    <FooterAdd />
   </section>
 </section>
 
@@ -297,13 +176,13 @@
     @apply text-2xl font-medium my-6;
   }
 
-  .cols {
+  .columns {
     @apply flex gap-4;
   }
-  .col {
+  .column {
     @apply items-center justify-center self-center text-center;
   }
-  .col-value {
+  .column-value {
     font-family: "Noto Serif KR", serif;
     font-weight: 100;
     font-style: italic;
@@ -312,6 +191,7 @@
   .items {
   }
   .item {
+    @apply font-medium;
     @apply mb-6;
   }
   .item-value {

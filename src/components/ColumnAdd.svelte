@@ -6,7 +6,7 @@
 </script>
 
 <button
-  class="cols-add"
+  class="columns-add"
   class:hidden={!$isAdminStored}
   aria-label="column add"
   on:click={() => utils.addColumn(group)}

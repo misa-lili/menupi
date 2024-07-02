@@ -99,15 +99,15 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
         >
           {group.value}
         </div>
-        <div class="cols">
-          {#each group.cols || [] as col, idx (col.uuid)}
-            <div id={col.uuid} class="col">
+        <div class="columns">
+          {#each group.columns || [] as column, idx (column.uuid)}
+            <div id={column.uuid} class="column">
               <div
-                class="col-value"
+                class="column-value"
                 contenteditable={$isAdminStored}
-                on:input={(e) => (col.value = e.target.textContent)}
+                on:input={(e) => (column.value = e.target.textContent)}
               >
-                {col.value}
+                {column.value}
               </div>
             </div>
           {/each}
@@ -196,11 +196,11 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
   .group-value {
   }
 
-  .cols {
+  .columns {
   }
-  .col {
+  .column {
   }
-  .col-value {
+  .column-value {
   }
 
   .items {

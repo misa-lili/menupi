@@ -26,7 +26,7 @@ type Group = {
   uuid?: string
   value: string
   items: Item[]
-  cols: Column[]
+  columns: Column[]
   src?: string
 }
 

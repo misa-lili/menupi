@@ -53,9 +53,9 @@
       <div id={group.uuid} class="group">
         <GroupToolbar {group} />
         <GroupValue {group} />
-        <div class="cols">
-          {#each group.cols || [] as column, idx (column.uuid)}
-            <div id={column.uuid} class="col">
+        <div class="columns">
+          {#each group.columns || [] as column, idx (column.uuid)}
+            <div id={column.uuid} class="column">
               <ColumnToolbar {group} {column} />
               <ColumnValue {column} />
             </div>
@@ -144,13 +144,13 @@
   .group-value {
   }
 
-  .cols {
+  .columns {
     @apply border border-dashed border-yellow-500 m-2 p-2;
   }
-  .col {
+  .column {
     @apply border-2 rounded-2xl border-yellow-500 m-2 p-2;
   }
-  .col-value {
+  .column-value {
   }
 
   .items {

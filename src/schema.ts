@@ -49,7 +49,7 @@ export const menuJsonSchema = z.object({
           src: z.string().optional(),
         }),
       ),
-      cols: z.array(
+      columns: z.array(
         z.object({
           uuid: z.string().optional(),
           value: z.string(),
