@@ -4,6 +4,9 @@
   import TitleToolbar from "../components/TitleToolbar.svelte"
   import TitleAdd from "../components/TitleAdd.svelte"
   import TitleValue from "../components/TitleValue.svelte"
+  import HeaderToolbar from "../components/HeaderToolbar.svelte"
+  import HeaderValue from "../components/HeaderValue.svelte"
+  import HeaderAdd from "../components/HeaderAdd.svelte"
 </script>
 
 <section class="skin">
@@ -20,43 +23,11 @@
   <section class="headers">
     {#each $menuStored.json.headers || [] as header, idx (header.uuid)}
       <div id={header.uuid} class="header">
-        <button
-          class="header-move-up"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.moveHeader(header, "up")}
-        >
-          Up
-        </button>
-        <button
-          class="header-move-down"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.moveHeader(header, "down")}
-        >
-          Down
-        </button>
-        <button
-          class="header-remove"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.removeHeader(header)}
-        >
-          Remove Header
-        </button>
-        <div
-          class="header-value"
-          contenteditable={$isAdminStored}
-          on:input={(e) => (header.value = e.target.textContent)}
-        >
-          {header.value}
-        </div>
+        <HeaderToolbar {header} />
+        <HeaderValue {header} />
       </div>
     {/each}
-    <button
-      class="headers-add"
-      class:hidden={!$isAdminStored}
-      on:click={() => utils.addHeader()}
-    >
-      Add Header
-    </button>
+    <HeaderAdd />
   </section>
 
   <section class="groups">

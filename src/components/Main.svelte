@@ -27,8 +27,10 @@
           <option value={idx}> {skin} </option>
         {/each}
       </select>
-      <button on:click={save}>Save</button>
-      <button on:click={rollback}>Roll Back</button>
+      <button on:click={save}>
+        <img src="save.svg" alt="save" />
+      </button>
+      <!-- <button on:click={rollback}>Roll Back</button> -->
     {/if}
   </section>
 
@@ -43,14 +45,20 @@
   <section id="bottom">
     <div>
       {#if !$isAdminStored}
-        <button on:click={login}>Login</button>
+        <button on:click={login}>
+          <img src="login.svg" alt="login" />
+        </button>
       {:else}
-        <button on:click={logout}>Logout</button>
+        <button on:click={logout}>
+          <img src="logout.svg" alt="logout" />
+        </button>
       {/if}
     </div>
     <div></div>
     <div>
-      <button on:click={createNewMenu}>Create new menu</button>
+      <button on:click={createNewMenu}>
+        <img src="add_circle.svg" alt="add menu" />
+      </button>
     </div>
     <div>Created by Menupi</div>
     <div>MIT License © 2023 Misa Lili</div>
@@ -64,19 +72,20 @@
 
   section#top {
     @apply font-serif font-light text-sm text-stone-600;
-    @apply text-end;
+    @apply flex justify-end gap-1 mb-2;
   }
 
   section#bottom {
-    @apply font-serif font-light text-sm text-stone-600;
-    @apply text-end;
+    @apply font-serif font-extralight text-xs text-stone-600/70;
+    @apply flex flex-col items-end;
     @apply my-9;
   }
 
   :global(button) {
-    @apply bg-stone-600 text-white p-0 pr-1 mb-0.5;
+    @apply bg-stone-600 text-white;
     @apply hover:bg-stone-700;
     @apply text-stone-300 font-thin italic font-mono;
     @apply flex;
+    @apply pl-0.5 pr-1.5;
   }
 </style>

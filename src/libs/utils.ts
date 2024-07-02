@@ -41,7 +41,7 @@ export function removeTitle(title: Title) {
   menuStored.set(menu)
 }
 
-export async function uploadImageTitle(title: Title) {
+export async function uploadImage(row: { src?: string }) {
   let inputFileElement = document.getElementById("file")
   if (!inputFileElement) {
     inputFileElement = document.createElement("input")
@@ -68,7 +68,7 @@ export async function uploadImageTitle(title: Title) {
 
         if (response.ok) {
           const { path } = await response.json()
-          title.src = path
+          row.src = path
           menuStored.update((menu) => menu)
         }
       }
@@ -79,7 +79,7 @@ export async function uploadImageTitle(title: Title) {
   inputFileElement.click()
 }
 
-export async function removeImageTitle(title: Title) {
+export async function removeImage(row: { src?: string }) {
   // TODO: 이미지 삭제 후에 사용자가 저장을 안하면 다시 복구가 안됨
   // Solution: 사용자가 저장할때 이미지가 없어진 애들을 찾아서 삭제
 
@@ -93,7 +93,7 @@ export async function removeImageTitle(title: Title) {
   //   menuStored.update((menu) => menu)
   // }
 
-  title.src = undefined
+  row.src = undefined
   menuStored.update((menu) => menu)
 }
 
@@ -422,10 +422,10 @@ export async function save() {
 }
 
 export async function rollback() {
-  if (!confirm("Are you sure you want to rollback?")) return
-
-  menuStored.set(JSON.parse(JSON.stringify(get(menuBackedUpStored))))
-  eventBus.trigger("render", {})
+  // TODO: 걍 새로고침 권장
+  // if (!confirm("Are you sure you want to rollback?")) return
+  // menuStored.set(JSON.parse(JSON.stringify(get(menuBackedUpStored))))
+  // eventBus.trigger("render", {})
 }
 
 export async function login() {
