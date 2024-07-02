@@ -1,11 +1,8 @@
-import { S3Client } from "@aws-sdk/client-s3"
+import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3"
 import { Upload } from "@aws-sdk/lib-storage"
 import type { APIRoute } from "astro"
 
-export const POST: APIRoute = async ({
-  params,
-  request,
-}): Promise<Response> => {
+export const POST: APIRoute = async ({ request }): Promise<Response> => {
   // upload input file to aws s3 storage
   // 요청에서 FormData 파싱
   const formData = await request.formData()
@@ -26,6 +23,29 @@ export const POST: APIRoute = async ({
   } else {
     // 파일이 없거나 유효하지 않은 경우 오류 반환
     throw new Error("Invalid file")
+  }
+}
+
+export const DELETE: APIRoute = async ({ request }): Promise<Response> => {
+  const { fileUrl } = await request.json()
+
+  // 파일 경로 추출 (예: 'public/uuid-filename.extension')
+  const filePath = fileUrl.split("/").pop()
+
+  if (!filePath) {
+    return new Response(JSON.stringify({ error: "Invalid file URL" }), {
+      status: 400,
+    })
+  }
+
+  try {
+    await deleteFromS3(filePath)
+    return new Response(JSON.stringify({ success: true }), { status: 200 })
+  } catch (error) {
+    console.error("Failed to delete image from S3", error)
+    return new Response(JSON.stringify({ error: "Failed to delete image" }), {
+      status: 500,
+    })
   }
 }
 
@@ -79,4 +99,13 @@ async function upload(blob: Blob, path: string) {
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function deleteFromS3(filePath: string) {
+  const command = new DeleteObjectCommand({
+    Bucket: Bun.env.AWS_BUCKET_NAME,
+    Key: `public/${filePath}`, // 파일 경로
+  })
+
+  await s3.send(command)
 }

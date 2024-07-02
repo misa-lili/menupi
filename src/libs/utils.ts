@@ -79,7 +79,20 @@ export async function uploadImageTitle(title: Title) {
   inputFileElement.click()
 }
 
-export function removeImageTitle(title: Title) {
+export async function removeImageTitle(title: Title) {
+  // TODO: 이미지 삭제 후에 사용자가 저장을 안하면 다시 복구가 안됨
+  // Solution: 사용자가 저장할때 이미지가 없어진 애들을 찾아서 삭제
+
+  // const response = await fetch("http://localhost:4321/storage", {
+  //   method: "DELETE",
+  //   body: JSON.stringify({ fileUrl: title.src }),
+  // })
+
+  // if (response.ok) {
+  //   title.src = undefined
+  //   menuStored.update((menu) => menu)
+  // }
+
   title.src = undefined
   menuStored.update((menu) => menu)
 }
