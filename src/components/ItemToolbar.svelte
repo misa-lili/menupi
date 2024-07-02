@@ -3,48 +3,48 @@
   import * as utils from "../libs/utils"
 
   export let group: Group
-  export let column: Column
+  export let item: Item
 </script>
 
 <div class="flex">
   <button
-    class="column-move-up"
+    class="item-move-up"
     class:hidden={!$isAdminStored}
-    aria-label="column move up"
-    on:click={() => utils.moveColumn(group, column, "up")}
+    aria-label="item move up"
+    on:click={() => utils.moveItem(group, item, "up")}
   >
     <img src="arrow_up.svg" alt="arrow up" />
   </button>
   <button
-    class="column-move-down"
+    class="item-move-down"
     class:hidden={!$isAdminStored}
-    aria-label="column move down"
-    on:click={() => utils.moveColumn(group, column, "down")}
+    aria-label="item move down"
+    on:click={() => utils.moveItem(group, item, "down")}
   >
     <img src="arrow_down.svg" alt="arrow down" />
   </button>
-  {#if !column.src}
+  {#if !item.src}
     <button
       class:hidden={!$isAdminStored}
-      aria-label="column image upload"
-      on:click={() => utils.uploadImage(column)}
+      aria-label="item image upload"
+      on:click={() => utils.uploadImage(item)}
     >
       <img src="image.svg" alt="image" />
     </button>
   {:else}
     <button
       class:hidden={!$isAdminStored}
-      aria-label="column image remove"
-      on:click={() => utils.removeImage(column)}
+      aria-label="item image remove"
+      on:click={() => utils.removeImage(item)}
     >
       <img src="hide_image.svg" alt="hide image" />
     </button>
   {/if}
   <button
-    class="column-remove"
+    class="item-remove"
     class:hidden={!$isAdminStored}
-    aria-label="column remove"
-    on:click={() => utils.removeColumn(group, column)}
+    aria-label="item remove"
+    on:click={() => utils.removeItem(group, item)}
   >
     <img src="delete.svg" alt="delete" />
   </button>
