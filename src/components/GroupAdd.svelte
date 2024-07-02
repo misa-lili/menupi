@@ -4,10 +4,10 @@
 </script>
 
 <button
-  class="titles-add"
+  class="groups-add"
   class:hidden={!$isAdminStored}
-  aria-label="title add"
-  on:click={() => utils.addTitle()}
+  aria-label="group add"
+  on:click={() => utils.addGroup()}
 >
-  <img src="add.svg" alt="add" /> Title
+  <img src="add.svg" alt="add" /> Group
 </button>

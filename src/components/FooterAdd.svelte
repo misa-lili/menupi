@@ -4,10 +4,10 @@
 </script>
 
 <button
-  class="titles-add"
+  class="footers-add"
   class:hidden={!$isAdminStored}
-  aria-label="title add"
-  on:click={() => utils.addTitle()}
+  aria-label="footer add"
+  on:click={() => utils.addFooter()}
 >
-  <img src="add.svg" alt="add" /> Title
+  <img src="add.svg" alt="add" /> Footer
 </button>

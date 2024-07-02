@@ -2,48 +2,49 @@
   import { isAdminStored } from "../store"
   import * as utils from "../libs/utils"
 
-  export let header: Header
+  export let group: Column
+  export let column: Column
 </script>
 
 <div class="flex">
   <button
-    class="header-move-up"
+    class="column-move-up"
     class:hidden={!$isAdminStored}
-    aria-label="header move up"
-    on:click={() => utils.moveHeader(header, "up")}
+    aria-label="column move up"
+    on:click={() => utils.moveColumn(group, column, "up")}
   >
     <img src="arrow_up.svg" alt="arrow up" />
   </button>
   <button
-    class="header-move-down"
+    class="column-move-down"
     class:hidden={!$isAdminStored}
-    aria-label="header move down"
-    on:click={() => utils.moveHeader(header, "down")}
+    aria-label="column move down"
+    on:click={() => utils.moveColumn(group, column, "down")}
   >
     <img src="arrow_down.svg" alt="arrow down" />
   </button>
-  {#if !header.src}
+  {#if !column.src}
     <button
       class:hidden={!$isAdminStored}
-      aria-label="header image upload"
-      on:click={() => utils.uploadImage(header)}
+      aria-label="column image upload"
+      on:click={() => utils.uploadImage(column)}
     >
       <img src="image.svg" alt="image" />
     </button>
   {:else}
     <button
       class:hidden={!$isAdminStored}
-      aria-label="header image remove"
-      on:click={() => utils.removeImage(header)}
+      aria-label="column image remove"
+      on:click={() => utils.removeImage(column)}
     >
       <img src="hide_image.svg" alt="hide image" />
     </button>
   {/if}
   <button
-    class="header-remove"
+    class="column-remove"
     class:hidden={!$isAdminStored}
-    aria-label="header remove"
-    on:click={() => utils.removeHeader(header)}
+    aria-label="column remove"
+    on:click={() => utils.removeColumn(group, column)}
   >
     <img src="delete.svg" alt="delete" />
   </button>

@@ -7,6 +7,15 @@
   import HeaderToolbar from "../components/HeaderToolbar.svelte"
   import HeaderValue from "../components/HeaderValue.svelte"
   import HeaderAdd from "../components/HeaderAdd.svelte"
+  import GroupToolbar from "../components/GroupToolbar.svelte"
+  import GroupValue from "../components/GroupValue.svelte"
+  import GroupAdd from "../components/GroupAdd.svelte"
+  import FooterToolbar from "../components/FooterToolbar.svelte"
+  import FooterValue from "../components/FooterValue.svelte"
+  import FooterAdd from "../components/FooterAdd.svelte"
+  import ColumnAdd from "../components/ColumnAdd.svelte"
+  import ColumnValue from "../components/ColumnValue.svelte"
+  import ColumnToolbar from "../components/ColumnToolbar.svelte"
 </script>
 
 <section class="skin">
@@ -33,74 +42,16 @@
   <section class="groups">
     {#each $menuStored.json.groups || [] as group, idx (group.uuid)}
       <div id={group.uuid} class="group">
-        <button
-          class="group-move-up"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.moveGroup(group, "up")}
-        >
-          Up
-        </button>
-        <button
-          class="group-move-down"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.moveGroup(group, "down")}
-        >
-          Down
-        </button>
-        <button
-          class="group-remove"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.removeGroup(group)}
-        >
-          Remove Group
-        </button>
-        <div
-          class="group-value"
-          contenteditable={$isAdminStored}
-          on:input={(e) => (group.value = e.target.textContent)}
-        >
-          {group.value}
-        </div>
+        <GroupToolbar {group} />
+        <GroupValue {group} />
         <div class="cols">
-          {#each group.cols || [] as col, idx (col.uuid)}
-            <div id={col.uuid} class="col">
-              <button
-                class="col-move-up"
-                class:hidden={!$isAdminStored}
-                on:click={() => utils.moveColumn(group, col, "up")}
-              >
-                Up
-              </button>
-              <button
-                class="col-move-down"
-                class:hidden={!$isAdminStored}
-                on:click={() => utils.moveColumn(group, col, "down")}
-              >
-                Down
-              </button>
-              <button
-                class="col-remove"
-                class:hidden={!$isAdminStored}
-                on:click={() => utils.removeColumn(group, col)}
-              >
-                Remove Col
-              </button>
-              <div
-                class="col-value"
-                contenteditable={$isAdminStored}
-                on:input={(e) => (col.value = e.target.textContent)}
-              >
-                {col.value}
-              </div>
+          {#each group.cols || [] as column, idx (column.uuid)}
+            <div id={column.uuid} class="col">
+              <ColumnToolbar {group} {column} />
+              <ColumnValue {column} />
             </div>
           {/each}
-          <button
-            class="cols-add"
-            class:hidden={!$isAdminStored}
-            on:click={() => utils.addColumn(group)}
-          >
-            Add Column
-          </button>
+          <ColumnAdd {group} />
         </div>
         <div class="items">
           {#each group.items || [] as item, idx (item.uuid)}
@@ -231,55 +182,17 @@
         </div>
       </div>
     {/each}
-    <button
-      class="groups-add"
-      class:hidden={!$isAdminStored}
-      on:click={() => utils.addGroup()}
-    >
-      Add Group
-    </button>
+    <GroupAdd />
   </section>
 
   <section class="footers">
     {#each $menuStored.json.footers || [] as footer, idx (footer.uuid)}
       <div id={footer.uuid} class="footer">
-        <button
-          class="footer-move-up"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.moveFooter(footer, "up")}
-        >
-          Up
-        </button>
-        <button
-          class="footer-move-down"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.moveFooter(footer, "down")}
-        >
-          Down
-        </button>
-        <button
-          class="footer-remove"
-          class:hidden={!$isAdminStored}
-          on:click={() => utils.removeFooter(footer)}
-        >
-          Remove Footer
-        </button>
-        <div
-          class="footer-value"
-          contenteditable={$isAdminStored}
-          on:input={(e) => (footer.value = e.target.textContent)}
-        >
-          {footer.value}
-        </div>
+        <FooterToolbar {footer} />
+        <FooterValue {footer} />
       </div>
     {/each}
-    <button
-      class="footers-add"
-      class:hidden={!$isAdminStored}
-      on:click={() => utils.addFooter()}
-    >
-      Add Footer
-    </button>
+    <FooterAdd />
   </section>
 </section>
 

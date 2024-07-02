@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { menuStored, isAdminStored } from "../store"
+  import { isAdminStored } from "../store"
   import * as utils from "../libs/utils"
 
   export let title: Title
