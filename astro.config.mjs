@@ -15,4 +15,8 @@ export default defineConfig({
       destination: "/main",
     },
   },
+  build: {
+    sourcemap: false,
+    minify: false,
+  },
 })
