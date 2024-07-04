@@ -3,5 +3,4 @@ WORKDIR /app
 COPY . .
 RUN bun install
 RUN bun run build
-RUN bun run compile
-CMD ["./dist/start"]
+CMD ["bun","run","./dist/server/entry.mjs"]
