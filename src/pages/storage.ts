@@ -22,7 +22,9 @@ export const POST: APIRoute = async ({ request }): Promise<Response> => {
     return new Response(JSON.stringify({ name, path, type, size, result }))
   } else {
     // 파일이 없거나 유효하지 않은 경우 오류 반환
-    throw new Error("Invalid file")
+    return new Response(JSON.stringify({ error: "Invalid file" }), {
+      status: 400,
+    })
   }
 }
 
