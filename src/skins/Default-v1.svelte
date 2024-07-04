@@ -123,16 +123,12 @@
   .title {
     @apply border-2 rounded-2xl  border-red-500 m-2 p-2;
   }
-  .title-value {
-  }
 
   .headers {
     @apply border border-dashed border-red-500 m-2 p-2;
   }
   .header {
     @apply border-2 rounded-2xl border-red-500 m-2 p-2;
-  }
-  .header-value {
   }
 
   .groups {
@@ -141,16 +137,12 @@
   .group {
     @apply border-2 rounded-2xl border-red-500 m-2 p-2;
   }
-  .group-value {
-  }
 
   .columns {
     @apply border border-dashed border-yellow-500 m-2 p-2;
   }
   .column {
     @apply border-2 rounded-2xl border-yellow-500 m-2 p-2;
-  }
-  .column-value {
   }
 
   .items {
@@ -159,16 +151,12 @@
   .item {
     @apply border-2 rounded-2xl border-blue-500 m-2 p-2;
   }
-  .item-value {
-  }
 
   .descriptions {
     @apply border border-dashed border-orange-500 m-2 p-2;
   }
   .description {
     @apply border-2 rounded-2xl border-orange-500 m-2 p-2;
-  }
-  .description-value {
   }
 
   .prices {
@@ -177,15 +165,11 @@
   .price {
     @apply border-2 rounded-2xl border-green-500 m-2 p-2;
   }
-  .price-value {
-  }
 
   .footers {
     @apply border border-dashed border-red-500 m-2 p-2;
   }
   .footer {
     @apply border-2 rounded-2xl border-red-500 m-2 p-2;
-  }
-  .footer-value {
   }
 </style>

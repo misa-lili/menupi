@@ -1,0 +1,10 @@
+services:
+  app:
+    env_file:
+      - .env
+    build: .
+    ports:
+      - "${PORT}:${PORT}"
+    extra_hosts:
+      - "localhost:host-gateway"
+    restart: always

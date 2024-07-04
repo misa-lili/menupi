@@ -87,5 +87,6 @@
     @apply text-stone-300 font-thin italic font-mono;
     @apply flex;
     @apply pl-0.5 pr-1.5;
+    @apply opacity-50;
   }
 </style>

@@ -6,6 +6,7 @@
     "dev": "bunx --bun astro dev",
     "test": "bun test",
     "build": "bunx --bun astro check && bunx --bun astro build",
+    "compile": "bun build dist/server/entry.mjs --compile --outfile=dist/start",
     "start": "bun run dist/server/entry.mjs",
     "preview": "bunx --bun astro preview",
     "astro": "bunx --bun astro"
